@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<title>Power BI Essentials — Module 2: Power Query & M Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>:root{--blue:#243A5E;--blue-dark:#1A2A40;--blue-light:#EEF2F8;--blue-mid:#7B96C4;--navy:#1A2A40;--pbi:#F2C811;--pbi-dark:#C8A200;--pbi-soft:#FFFCE0;--text:#1a2332;--text2:#4a5568;--muted:#8fa3bc;--border:#d0dae8;--bg:#0f1117;--bg2:#ffffff;--bg3:#f0f4f9;--green:#1a6b3a;--green-light:#e8f5ed;--success:#43A047;--success-dark:#2E7D32;--danger:#DC2626;--danger-dark:#B91C1C;--radius:12px;--shadow:0 4px 12px rgba(15,23,42,.06);--font-sans:'Source Sans 3','Segoe UI',system-ui,sans-serif;--font-mono:'JetBrains Mono','Fira Code','Source Code Pro',Menlo,monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--blue);text-decoration:none;}a:hover{color:var(--blue-dark);}
+code,pre,.mono{font-family:var(--font-mono);}
+@keyframes spin{to{transform:rotate(360deg);}}
+#auth-overlay{position:fixed;inset:0;background:rgba(20,30,50,.85);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.auth-card{background:#fff;border-radius:20px;padding:48px 44px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+.auth-card img{height:38px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;}
+.auth-card h2{font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:8px;}
+.auth-card p{color:#64748b;font-size:.95rem;line-height:1.6;margin-bottom:24px;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:.95rem;font-weight:700;cursor:pointer;width:100%;transition:all .2s;}
+.google-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+.auth-divider{margin:16px 0 14px;color:#9ca3af;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.auth-input{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:11px 13px;font-size:.9rem;margin-bottom:8px;outline:none;font-family:var(--font-sans);color:#111827;background:#fff;display:block;box-sizing:border-box;}
+.auth-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.email-signin-btn{width:100%;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s;}
+.email-signin-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+#ep-error{display:none;margin-top:8px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;}
+#loading-overlay{position:fixed;inset:0;z-index:800;background:rgba(243,244,246,.9);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.spinner{width:36px;height:36px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--blue);animation:spin .7s linear infinite;}
+#loading-overlay p{font-size:14px;color:var(--muted);font-weight:600;}
+nav{background:var(--blue);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;}
+.nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.nav-logo{height:26px;filter:brightness(0) invert(1);flex-shrink:0;}
+.nav-breadcrumb{font-size:13px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:6px;overflow:hidden;}
+.nav-breadcrumb a{color:rgba(255,255,255,.75);text-decoration:none;white-space:nowrap;}
+.nav-breadcrumb a:hover{color:#fff;}
+.nav-breadcrumb .sep{opacity:.5;}
+.nav-breadcrumb .current{color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);}
+#user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;}
+#signout-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-family:var(--font-sans);}
+#signout-btn:hover{background:rgba(255,255,255,.2);}
+#app{display:none;}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px);}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}#sidebar{display:none;}}
+#sidebar{background:#161e2e;border-right:1px solid rgba(255,255,255,.06);padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-header{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-module-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.sidebar-module-name{font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sidebar-progress-wrap{margin-top:14px;}
+.sidebar-progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.sidebar-bar-bg{height:4px;background:rgba(255,255,255,.1);border-radius:50px;overflow:hidden;}
+.sidebar-bar-fill{height:100%;background:var(--success);border-radius:50px;width:0%;transition:width .5s;}
+#sidebar-pct{font-size:11px;color:rgba(255,255,255,.5);}
+.nav-items-list{padding:12px 0;flex:1;}
+.nav-item{padding:10px 20px;font-size:13px;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;display:flex;align-items:center;gap:8px;line-height:1.4;transition:all .15s;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9);border-left-color:var(--pbi);}
+.nav-item.active{background:rgba(242,200,17,.08);color:var(--pbi);border-left-color:var(--pbi);font-weight:600;}
+.nav-item.completed{color:var(--success);}
+.nav-item.completed::before{content:'✓ ';font-size:12px;color:var(--success);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:block;margin-bottom:6px;}
+.sidebar-footer a:hover{color:rgba(255,255,255,.8);}
+.nav-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:50px;white-space:nowrap;}
+.badge-lab{background:rgba(242,200,17,.2);color:#F2C811;}
+.badge-new{background:rgba(67,160,71,.2);color:#43A047;}
+.badge-adv{background:rgba(220,38,38,.15);color:#DC2626;}
+.main-content{background:#f4f6f9;padding:32px;}
+@media(max-width:640px){.main-content{padding:18px;}}
+.section-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;transition:box-shadow .2s;}
+.section-block:hover{box-shadow:var(--shadow);}
+.section-header{display:flex;align-items:center;gap:10px;padding:16px 20px;cursor:pointer;user-select:none;background:var(--bg2);border-bottom:1px solid transparent;transition:background .15s;}
+.section-header:hover{background:var(--bg3);}
+.section-num{font-size:12px;font-weight:800;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:50px;white-space:nowrap;}
+.section-title{flex:1;font-size:15px;font-weight:700;color:var(--text);}
+.section-toggle{font-size:11px;color:var(--muted);transition:transform .2s;}
+.section-toggle.open{transform:rotate(180deg);}
+.section-body{display:none;padding:24px 28px;border-top:1px solid var(--border);}
+.section-body.open{display:block;}
+.section-body p{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:14px;}
+.section-body h3{font-size:16px;font-weight:700;color:var(--text);margin:20px 0 10px;}
+.section-body h4{font-size:14px;font-weight:700;color:var(--blue);margin:16px 0 8px;}
+.section-body ul,.section-body ol{margin:0 0 14px 20px;}
+.section-body li{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:4px;}
+.section-body strong{color:var(--text);font-weight:700;}
+pre,.code-block{background:#0f1117;border:1px solid #2a3444;border-radius:8px;padding:16px 18px;margin:14px 0;overflow-x:auto;}
+pre code,.code-block code{font-family:var(--font-mono);font-size:13px;color:#e2e8f0;line-height:1.7;white-space:pre;}
+.inline-code{font-family:var(--font-mono);font-size:13px;background:#f0f4f9;color:#243A5E;padding:1px 5px;border-radius:4px;}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:14px;}
+.callout-info{background:#EEF2F8;border-color:var(--blue);color:var(--navy);}
+.callout-warn{background:#FFFCE0;border-color:var(--pbi);color:#92700a;}
+.callout-tip{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.callout strong{font-weight:700;}
+.lab{background:#FFFCE0;border:1px solid var(--pbi);border-radius:8px;padding:20px;margin:16px 0;}
+.lab h4{color:var(--pbi-dark);font-size:14px;font-weight:700;margin-bottom:10px;}
+.lab ol{margin-left:18px;}
+.lab li{font-size:14px;color:#5a4a00;line-height:1.8;margin-bottom:4px;}
+.lab-download{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--pbi-dark);background:rgba(242,200,17,.15);padding:6px 14px;border-radius:6px;border:1px solid var(--pbi);margin-bottom:12px;text-decoration:none;margin-right:8px;}
+.lab-expected{background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:12px 16px;margin-top:12px;font-size:13px;color:#1a6b3a;}
+.test-questions{background:var(--blue-light);border-radius:8px;padding:14px 18px;margin:16px 0;}
+.test-questions h4{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+.test-questions ul{margin-left:16px;}
+.test-questions li{font-size:13px;color:var(--navy);line-height:1.7;margin-bottom:4px;}
+.complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:11px 24px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-sans);background:var(--danger);color:#fff;transition:all .2s;}
+.complete-btn:hover:not(:disabled){background:var(--danger-dark);transform:translateY(-1px);}
+.complete-btn.done{background:var(--success);color:#fff;cursor:default;}
+.complete-btn:disabled{opacity:.8;cursor:default;transform:none;}
+.save-indicator{display:inline-block;margin-left:12px;font-size:13px;color:var(--muted);vertical-align:middle;}</style>
+</head>
+<body>
+<div id="auth-overlay">
+  <div class="auth-card">
+    <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
+    <h2>Power BI Essentials</h2>
+    <p>Sign in with your SourceFuse account to access course content and save progress.</p>
+    <button class="google-btn" id="signin-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="auth-divider">OR</div>
+    <input id="ep-email" type="email" placeholder="you@sourcefuse.com" class="auth-input"/>
+    <input id="ep-password" type="password" placeholder="Password" class="auth-input"/>
+    <button onclick="sfEmailSignIn()" class="email-signin-btn">Sign in with Email</button>
+    <div id="ep-error"></div>
+  </div>
+</div>
+<div id="loading-overlay" style="display:none;"><div class="spinner"></div><p>Loading progress…</p></div>
+<div id="app">
+<nav>
+  <div class="nav-left">
+    <img class="nav-logo" src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SF"/>
+    <div class="nav-breadcrumb">
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">Power BI Essentials</a>
+      <span class="sep">›</span>
+      <span class="current">Module 2: Power Query & M Language</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <img id="user-avatar" src="" alt=""/>
+    <span id="user-name"></span>
+    <button id="signout-btn">Sign out</button>
+  </div>
+</nav>
+<div class="layout">
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-module-title">Module 2</div>
+      <div class="sidebar-module-name">Power Query & M Language</div>
+      <div class="sidebar-progress-wrap">
+        <div class="sidebar-progress-label"><span>Progress</span><span id="sidebar-pct">0%</span></div>
+        <div class="sidebar-bar-bg"><div class="sidebar-bar-fill" id="sidebar-bar"></div></div>
+      </div>
+    </div>
+    <div class="nav-items-list" id="nav-items"></div>
+    <div class="sidebar-footer">
+      <a href="powerbi-module-1.html?v=2026-06-01-v1">← Previous Module</a>
+      <a href="powerbi-module-3.html?v=2026-06-01-v1">Next Module →</a>
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">⬅ Back to Dashboard</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div id="sections-container"></div>
+  </main>
+</div>
+</div>
+<script type="module">
+import { initializeApp }       from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC-I-IOCq2fCwa471fsD5xOn6SYQSBDp7Q",
+  authDomain:        "sfcertification-grafana.firebaseapp.com",
+  projectId:         "sfcertification-grafana",
+  storageBucket:     "sfcertification-grafana.firebasestorage.app",
+  messagingSenderId: "227322696511",
+  appId:             "1:227322696511:web:12e7ced7dd3d45fa06798a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const MODULE_KEY = 'pb2';
+const MODULE_NUM = 2;
+const BADGES     = { lab:'🧪 Lab', new:'✨ New', adv:'⚡ Advanced' };
+const BADGE_CLASSES = { lab:'badge-lab', new:'badge-new', adv:'badge-adv' };
+
+const SECTIONS = [
+  { id:1, title:'Power Query Editor Overview', badge:'', content:`
+<p>Power Query Editor is the data preparation environment built into Power BI Desktop. Every transformation you apply is recorded as a step — forming a repeatable, auditable pipeline that runs automatically on each refresh.</p>
+<h3>Opening Power Query Editor</h3>
+<p>In Power BI Desktop, click <strong>Home → Transform Data</strong> to open Power Query Editor. Alternatively, right-click a query in the Queries pane and select <strong>Edit</strong>.</p>
+<h3>The Four Key Areas</h3>
+<ul>
+  <li><strong>Queries Pane</strong> (left) — lists all queries (tables) in your model. Right-click for rename, duplicate, delete, reference options.</li>
+  <li><strong>Data Preview</strong> (centre) — shows a sample of rows for the selected query. Column headers are clickable for sorting and type-setting.</li>
+  <li><strong>Applied Steps Pane</strong> (right) — every transformation is listed here in order. Click any step to see the data at that point in the pipeline. Right-click to rename, delete, or insert a step.</li>
+  <li><strong>Formula Bar</strong> (below the ribbon) — shows the M language expression for the selected Applied Step. You can edit the expression directly here.</li>
+</ul>
+<h3>Loading vs Transforming</h3>
+<p>When you first connect to data, Power BI asks whether to <strong>Load</strong> (accept data as-is) or <strong>Transform Data</strong> (open Power Query Editor). You can always re-open Power Query Editor later via <strong>Home → Transform Data</strong>. Click <strong>Home → Close & Apply</strong> to apply all changes and return to Desktop.</p>
+<div class="callout callout-tip"><strong>Tip:</strong> After making changes in Power Query Editor, always click <strong>Close & Apply</strong> — not just Close — to ensure your changes are applied to the data model.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>Where are all the transformation steps for a query recorded in Power Query Editor?</li><li>What must you click to apply Power Query changes and return to Power BI Desktop?</li><li>What does the Formula Bar show for a selected Applied Step?</li></ul></div>` },
+  { id:2, title:'Applied Steps & Query Folding', badge:'', content:`
+<p>Applied Steps are the heart of Power Query's non-destructive transformation approach. Every action you perform — changing a data type, filtering rows, renaming a column — is recorded as a step that can be reordered, edited, or deleted at any time.</p>
+<h3>Working with Applied Steps</h3>
+<ul>
+  <li><strong>Click a step</strong> to preview the data at that point in the pipeline — great for debugging transformation logic.</li>
+  <li><strong>Right-click → Rename</strong> to give meaningful names to complex steps (e.g. "Remove test orders" instead of "Filtered Rows").</li>
+  <li><strong>Drag steps</strong> to reorder them (with caution — reordering can break dependencies).</li>
+  <li><strong>Right-click → Delete</strong> to remove a step. Power BI warns if downstream steps depend on it.</li>
+</ul>
+<h3>Query Folding</h3>
+<p>Query folding is Power Query's ability to translate your transformation steps back into native queries that run at the source database (e.g. SQL). When folding occurs, the database does the heavy lifting — not Power BI's M engine — resulting in dramatically faster data loads.</p>
+<p>Folding works best with relational databases (SQL Server, PostgreSQL, Oracle). It does not work with flat files (CSV, Excel) because there is no query engine at the source.</p>
+<p>To check if a step is folding: right-click the step in the Applied Steps pane → <strong>View Native Query</strong>. If the option is greyed out, that step (and all subsequent steps) are not folding.</p>
+<div class="callout callout-warn"><strong>Important:</strong> Certain M operations break query folding — for example, adding custom M functions or referencing other queries. Once folding breaks, all subsequent steps run in the M engine. Where possible, apply foldable operations (filters, column selection, simple joins) before custom M transformations.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is query folding in Power Query?</li><li>How can you check whether a specific Applied Step is folding to the source database?</li><li>With which data source types does query folding typically work?</li></ul></div>` },
+  { id:3, title:'Data Transformation Operations', badge:'', content:`
+<p>Power Query provides a rich toolkit of transformation operations accessible from the ribbon. Understanding the most common operations and when to use each is fundamental to building clean, reliable data pipelines.</p>
+<h3>Column Operations</h3>
+<ul>
+  <li><strong>Change Type</strong> — set the data type for a column (Date, Decimal, Text, Whole Number, Logical). Always explicitly set types; never rely on auto-detect in production.</li>
+  <li><strong>Rename Column</strong> — double-click a column header. Use snake_case or consistent casing conventions across all tables.</li>
+  <li><strong>Remove Columns</strong> — select columns to keep → right-click → <em>Remove Other Columns</em> (safer than selecting columns to delete, as new source columns are excluded automatically).</li>
+  <li><strong>Split Column</strong> — split on delimiter, number of characters, or position. Creates multiple new columns.</li>
+  <li><strong>Extract</strong> (Transform ribbon) — extract text substrings: First Characters, Last Characters, Range, Text Before Delimiter, Text After Delimiter, Text Between Delimiters.</li>
+</ul>
+<h3>Row Operations</h3>
+<ul>
+  <li><strong>Filter Rows</strong> — click the dropdown arrow on any column header to filter rows.</li>
+  <li><strong>Remove Duplicates</strong> — select a column or columns → right-click → Remove Duplicates.</li>
+  <li><strong>Remove Errors</strong> — removes rows where any selected column contains an error value.</li>
+  <li><strong>Keep Rows / Remove Rows</strong> (Home ribbon) — keep or remove the top N rows, bottom N rows, or specific ranges.</li>
+</ul>
+<h3>Table Operations</h3>
+<ul>
+  <li><strong>Use First Row as Headers</strong> — promotes the first data row to column headers (common with CSV files where Power Query may not auto-detect headers).</li>
+  <li><strong>Transpose</strong> — rotates the table (rows become columns, columns become rows).</li>
+  <li><strong>Replace Values</strong> — find and replace specific values in a column.</li>
+</ul>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is the recommended approach when you want to keep only specific columns and automatically exclude any new source columns added in the future?</li><li>Which Power Query operation splits a text column into multiple columns based on a delimiter?</li><li>What does "Replace Values" do in Power Query?</li></ul></div>` },
+  { id:4, title:'Combining Queries — Append & Merge', badge:'', content:`
+<p>Power Query provides two ways to combine data from multiple queries: <strong>Append</strong> (vertical stacking) and <strong>Merge</strong> (horizontal joining). Understanding which to use — and the available join types — is essential for building complex models.</p>
+<h3>Append Queries</h3>
+<p>Append stacks tables vertically — like SQL's UNION ALL. Use it when you have the same data structure split across multiple files or time periods (e.g. twelve monthly CSVs). Access via <strong>Home → Append Queries</strong> or <strong>Append Queries as New</strong>.</p>
+<p>Columns are matched by name. If a column exists in one table but not another, the missing values are filled with <span class="inline-code">null</span>. Append is not UNION — it does not deduplicate rows. Use Remove Duplicates after appending if deduplication is needed.</p>
+<h3>Merge Queries (Joins)</h3>
+<p>Merge combines two tables horizontally based on one or more matching key columns — equivalent to a SQL JOIN. Access via <strong>Home → Merge Queries</strong>. The available join types:</p>
+<ul>
+  <li><strong>Left Outer</strong> — all rows from the left table; matching rows from the right. Unmatched right rows show null. Most common join type.</li>
+  <li><strong>Right Outer</strong> — all rows from the right table; matching rows from left.</li>
+  <li><strong>Full Outer</strong> — all rows from both tables; unmatched rows show null on the opposite side.</li>
+  <li><strong>Inner</strong> — only rows that match in both tables.</li>
+  <li><strong>Left Anti</strong> — rows from the left table that have NO match in the right. Great for finding orphaned records.</li>
+  <li><strong>Right Anti</strong> — rows from the right table that have no match in the left.</li>
+</ul>
+<p>After merging, a new column of type <span class="inline-code">Table</span> appears. Click the expand icon (↕) to select which right-table columns to add to the result.</p>
+<div class="callout callout-warn"><strong>Many-to-many merges:</strong> If both key columns contain duplicate values, the merge produces a Cartesian product — exploding row count. Always verify key column uniqueness on the "one" side before merging.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is the difference between Append and Merge in Power Query?</li><li>Which merge join type returns all rows from the left table, including those with no match on the right?</li><li>After a merge, how do you bring the right-table columns into the result?</li></ul></div>` },
+  { id:5, title:'Introduction to M Language', badge:'', content:`
+<p>Every Applied Step in Power Query is backed by M language — a functional, case-sensitive, lazy-evaluated language designed specifically for data transformation. Understanding M lets you edit steps precisely, write custom logic, and debug issues that the UI cannot express.</p>
+<h3>The M Formula Structure</h3>
+<p>Every M query follows a <span class="inline-code">let ... in</span> structure:</p>
+<pre><code>let
+    Source = Csv.Document(File.Contents("sf-sales-orders.csv"), [Delimiter=","]),
+    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    ChangedTypes = Table.TransformColumnTypes(PromotedHeaders, {{"revenue", type number}, {"quantity", Int64.Type}})
+in
+    ChangedTypes</code></pre>
+<p>Each line in <span class="inline-code">let</span> defines a named step. The <span class="inline-code">in</span> clause specifies which step's result is the query's output — always the last step by convention.</p>
+<h3>M Data Types</h3>
+<ul>
+  <li><strong>Primitive:</strong> <span class="inline-code">text</span>, <span class="inline-code">number</span>, <span class="inline-code">Int64.Type</span>, <span class="inline-code">date</span>, <span class="inline-code">datetime</span>, <span class="inline-code">logical</span>, <span class="inline-code">null</span></li>
+  <li><strong>Structured:</strong> <span class="inline-code">list</span> (curly braces: <span class="inline-code">{1, 2, 3}</span>), <span class="inline-code">record</span> (square brackets: <span class="inline-code">[name="Alice", age=30]</span>), <span class="inline-code">table</span></li>
+</ul>
+<h3>M is Case-Sensitive</h3>
+<p>Unlike DAX, M is strictly case-sensitive: <span class="inline-code">Table.AddColumn</span> ≠ <span class="inline-code">table.addcolumn</span>. Column names in M are referenced as text strings (in double quotes), not in square brackets like DAX.</p>
+<div class="callout callout-tip"><strong>Exploring M:</strong> Type <span class="inline-code">#shared</span> in the formula bar of a blank query to see the full list of available M functions. Or access it via <strong>Home → Advanced Editor</strong> to view and edit the full M script for any query.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What are the two main clauses in an M query expression?</li><li>Is M language case-sensitive?</li><li>How are column names referenced in M — as strings or in square brackets?</li></ul></div>` },
+  { id:6, title:'Custom Columns & M Functions', badge:'adv', content:`
+<p>Beyond the ribbon UI, Power Query allows you to create custom columns with arbitrary M expressions — unlocking any transformation logic you can express in M.</p>
+<h3>Add Custom Column</h3>
+<p>Go to <strong>Add Column → Custom Column</strong>. Write an M expression using the columns listed in the right-hand panel. Examples:</p>
+<pre><code>// Profit margin
+[profit] / [revenue]
+
+// Concatenate first and last name
+[first_name] & " " & [last_name]
+
+// Year from a date column
+Date.Year([order_date])
+
+// Conditional (IF/THEN/ELSE in M)
+if [revenue] > 10000 then "High" else if [revenue] > 5000 then "Medium" else "Low"</code></pre>
+<h3>Conditional Column (UI-Based)</h3>
+<p>For simple IF/THEN/ELSE logic, use <strong>Add Column → Conditional Column</strong>. Power Query builds the M expression for you. Output is always text — if you need numbers, add a <em>Change Type</em> step after.</p>
+<h3>Column from Examples</h3>
+<p>This is one of Power Query's most powerful features. Go to <strong>Add Column → Column from Examples → From All Columns</strong>. Type the expected output for a few rows — Power BI infers the M transformation and applies it to all rows. Great for complex text manipulations.</p>
+<h3>Commonly Used M Functions</h3>
+<ul>
+  <li><span class="inline-code">Text.Upper([col])</span>, <span class="inline-code">Text.Lower([col])</span>, <span class="inline-code">Text.Trim([col])</span> — text cleaning</li>
+  <li><span class="inline-code">Date.Year([col])</span>, <span class="inline-code">Date.Month([col])</span>, <span class="inline-code">Date.Day([col])</span> — date parts</li>
+  <li><span class="inline-code">Number.Round([col], 2)</span> — round to 2 decimal places</li>
+  <li><span class="inline-code">List.Sum({[col1], [col2]})</span> — sum of a list of values</li>
+  <li><span class="inline-code">Table.AddColumn(Source, "NewCol", each ...)</span> — programmatic column addition in M</li>
+</ul>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In Power Query, how do you write a conditional expression in a Custom Column?</li><li>What does "Column from Examples" do?</li><li>What M function extracts the year from a date column?</li></ul></div>` },
+  { id:7, title:'Lab: Building a Power Query Pipeline', badge:'lab', content:`
+<div class="lab">
+  <h4>🧪 Lab 2 — Clean, Transform & Combine</h4>
+  <p>Build a complete Power Query pipeline that cleans, merges, and enriches the SourceFuse sales data using M language and UI transformations.</p>
+  <a class="lab-download" href="../datasets/sf-sales-orders.csv" download>⬇ sf-sales-orders.csv</a>
+  <a class="lab-download" href="../datasets/sf-customers.csv" download>⬇ sf-customers.csv</a>
+  <a class="lab-download" href="../datasets/sf-marketing-spend.csv" download>⬇ sf-marketing-spend.csv</a>
+  <ol>
+    <li>Open Power BI Desktop → <strong>Home → Transform Data</strong> to open Power Query Editor.</li>
+    <li>In the <span class="inline-code">sf_sales_orders</span> query: change <span class="inline-code">order_date</span> to type <strong>Date</strong>, <span class="inline-code">revenue</span> and <span class="inline-code">profit</span> to <strong>Decimal Number</strong>, <span class="inline-code">quantity</span> to <strong>Whole Number</strong>. Rename the step "Set Data Types".</li>
+    <li>Filter out rows where <span class="inline-code">revenue</span> is null or zero: click the column dropdown → Number Filters → Greater Than → 0.</li>
+    <li>Add a <strong>Custom Column</strong> named <span class="inline-code">profit_margin</span> with formula: <span class="inline-code">[profit] / [revenue]</span>. Change its type to Decimal Number.</li>
+    <li>Add a <strong>Conditional Column</strong> named <span class="inline-code">revenue_tier</span>:<br/>
+      • revenue &gt; 10000 → "High"<br/>
+      • revenue &gt; 5000 → "Medium"<br/>
+      • Otherwise → "Low"</li>
+    <li>Merge <span class="inline-code">sf_sales_orders</span> with <span class="inline-code">sf_customers</span>: <strong>Home → Merge Queries</strong> → select <span class="inline-code">customer_id</span> as the join key → Left Outer Join. Expand to bring in <span class="inline-code">customer_name</span> and <span class="inline-code">segment</span>. Uncheck "Use original column name as prefix".</li>
+    <li>Load <span class="inline-code">sf-marketing-spend.csv</span> as a separate query — do not merge it. Clean its data types and rename columns as needed.</li>
+    <li>Open <strong>View → Advanced Editor</strong> on any query and inspect the generated M code. Identify the <span class="inline-code">let</span> and <span class="inline-code">in</span> clauses.</li>
+    <li>Click <strong>Close & Apply</strong>. Verify all three queries appear in the Fields pane in Report View.</li>
+  </ol>
+  <div class="lab-expected">
+    <strong>Expected result:</strong> Three queries in the model — sf_sales_orders (with profit_margin and revenue_tier columns, joined to customer data), sf_customers, and sf_marketing_spend. All data types correctly set.
+  </div>
+</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In the lab merge step, what join type was used and why?</li><li>What M clause specifies the final output of a query?</li><li>After adding transformations in Power Query Editor, what must you click to apply them?</li></ul></div>` }
+];
+
+let _uid = null, _completed = [];
+
+document.getElementById('signin-btn').addEventListener('click', () => {
+  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+    document.getElementById('ep-error').textContent = e.message||'Sign-in failed.';
+    document.getElementById('ep-error').style.display='block';
+  });
+});
+document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    if (!user.email||!user.email.endsWith('@sourcefuse.com')) {
+      document.getElementById('ep-error').textContent='Only @sourcefuse.com accounts are allowed.';
+      document.getElementById('ep-error').style.display='block';
+      await signOut(auth); return;
+    }
+    _uid=user.uid;
+    document.getElementById('user-avatar').src=user.photoURL||'';
+    document.getElementById('user-name').textContent=user.displayName||user.email;
+    document.getElementById('auth-overlay').style.display='none';
+    document.getElementById('loading-overlay').style.display='flex';
+    await loadCompleted();
+    document.getElementById('loading-overlay').style.display='none';
+    document.getElementById('app').style.display='block';
+    renderAll();
+  } else {
+    _uid=null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-overlay').style.display='flex';
+  }
+});
+
+window.sfEmailSignIn = function() {
+  const email=(document.getElementById('ep-email').value||'').trim().toLowerCase();
+  const pwd=document.getElementById('ep-password').value||'';
+  const errEl=document.getElementById('ep-error');
+  errEl.style.display='none';
+  if(!email||!pwd){errEl.textContent='Please enter your email and password.';errEl.style.display='block';return;}
+  if(!email.endsWith('@sourcefuse.com')){errEl.textContent='Only @sourcefuse.com accounts are allowed.';errEl.style.display='block';return;}
+  signInWithEmailAndPassword(auth,email,pwd).catch(e=>{
+    errEl.textContent=(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')?'Incorrect password.'
+      :(e.code==='auth/user-not-found')?'No account found for this email.':e.message;
+    errEl.style.display='block';
+  });
+};
+
+async function loadCompleted(){const snap=await getDoc(doc(db,'progress',_uid));_completed=snap.exists()?(snap.data()[MODULE_KEY]||[]):[]; }
+async function markComplete(id){
+  if(!_uid||_completed.includes(id))return;
+  _completed=[..._completed,id];
+  const ref=doc(db,'progress',_uid);const snap=await getDoc(ref);
+  if(!snap.exists()){await setDoc(ref,{[MODULE_KEY]:_completed,updatedAt:serverTimestamp()});}
+  else{await updateDoc(ref,{[MODULE_KEY]:arrayUnion(id),updatedAt:serverTimestamp()});}
+  updateSectionUI(id);updateSidebarProgress();
+}
+function renderAll(){renderSections();renderNavItems();updateSidebarProgress();}
+function renderSections(){
+  const c=document.getElementById('sections-container');
+  c.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const bh=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="section-block" id="block-${s.id}">
+      <div class="section-header" onclick="toggleSection(${s.id})">
+        <span class="section-num">${MODULE_NUM}.${s.id}</span>
+        <span class="section-title">${s.title}</span>
+        ${bh}${done?'<span style="color:#43A047;font-size:.85rem;">✓</span>':''}
+        <span class="section-toggle" id="toggle-${s.id}">▼</span>
+      </div>
+      <div class="section-body" id="body-${s.id}">
+        ${s.content}
+        <button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="handleMarkComplete(${s.id})" ${done?'disabled':''}>
+          ${done?'✅ Completed':'✔ Mark as Completed'}
+        </button>
+        <span class="save-indicator" id="indicator-${s.id}"></span>
+      </div>
+    </div>`;
+  }).join('');
+  const fi=SECTIONS.find(s=>!_completed.includes(s.id));
+  if(fi)toggleSection(fi.id);else if(SECTIONS.length>0)toggleSection(SECTIONS[0].id);
+}
+function renderNavItems(){
+  const nav=document.getElementById('nav-items');
+  nav.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const b=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="nav-item ${done?'completed':''}" id="nav-${s.id}" onclick="scrollToSection(${s.id})"><span>${MODULE_NUM}.${s.id} ${s.title}</span>${b}</div>`;
+  }).join('');
+}
+function updateSidebarProgress(){const done=_completed.length;const pct=Math.round((done/SECTIONS.length)*100);document.getElementById('sidebar-bar').style.width=pct+'%';document.getElementById('sidebar-pct').textContent=pct+'%';}
+function updateSectionUI(id){
+  const btn=document.getElementById(`complete-btn-${id}`);const nav=document.getElementById(`nav-${id}`);const blk=document.getElementById(`block-${id}`);
+  if(btn){btn.classList.add('done');btn.disabled=true;btn.textContent='✅ Completed';}
+  if(nav)nav.classList.add('completed');
+  const hdr=blk?.querySelector('.section-header');
+  if(hdr&&!hdr.querySelector('.done-tick')){const tick=document.createElement('span');tick.className='done-tick';tick.style.cssText='color:#43A047;font-size:.85rem;';tick.textContent='✓';hdr.insertBefore(tick,hdr.querySelector('.section-toggle'));}
+}
+window.handleMarkComplete=async function(id){const btn=document.getElementById(`complete-btn-${id}`);if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='⏳ Saving…';const ind=document.getElementById(`indicator-${id}`);if(ind)ind.textContent='Saving…';await markComplete(id);if(ind){ind.textContent='Saved ✓';setTimeout(()=>ind.textContent='',2000);}};
+window.toggleSection=function(id){SECTIONS.forEach(s=>{const body=document.getElementById(`body-${s.id}`);const toggle=document.getElementById(`toggle-${s.id}`);const nav=document.getElementById(`nav-${s.id}`);if(s.id===id){const isOpen=body.classList.contains('open');body.classList.toggle('open',!isOpen);toggle?.classList.toggle('open',!isOpen);nav?.classList.toggle('active',!isOpen);}else{body.classList.remove('open');toggle?.classList.remove('open');nav?.classList.remove('active');}});};
+window.scrollToSection=function(id){toggleSection(id);document.getElementById(`block-${id}`)?.scrollIntoView({behavior:'smooth',block:'start'})};
+window.markComplete=markComplete;</script>
+</body>
+</html>
