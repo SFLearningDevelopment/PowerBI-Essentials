@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<title>Power BI Essentials — Module 4: DAX — Measures, Columns & Context</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--blue:#243A5E;--blue-dark:#1A2A40;--blue-light:#EEF2F8;--blue-mid:#7B96C4;--navy:#1A2A40;--pbi:#F2C811;--pbi-dark:#C8A200;--pbi-soft:#FFFCE0;--text:#1a2332;--text2:#4a5568;--muted:#8fa3bc;--border:#d0dae8;--bg:#0f1117;--bg2:#ffffff;--bg3:#f0f4f9;--green:#1a6b3a;--green-light:#e8f5ed;--success:#43A047;--success-dark:#2E7D32;--danger:#DC2626;--danger-dark:#B91C1C;--radius:12px;--shadow:0 4px 12px rgba(15,23,42,.06);--font-sans:'Source Sans 3','Segoe UI',system-ui,sans-serif;--font-mono:'JetBrains Mono','Fira Code','Source Code Pro',Menlo,monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--blue);text-decoration:none;}a:hover{color:var(--blue-dark);}
+code,pre,.mono{font-family:var(--font-mono);}
+@keyframes spin{to{transform:rotate(360deg);}}
+#auth-overlay,.auth-overlay{position:fixed;inset:0;background:rgba(20,30,50,.85);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.auth-card{background:#fff;border-radius:20px;padding:48px 44px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+.auth-card img{height:38px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;}
+.auth-card h2{font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:8px;}
+.auth-card p{color:#64748b;font-size:.95rem;line-height:1.6;margin-bottom:24px;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:.95rem;font-weight:700;cursor:pointer;width:100%;transition:all .2s;}
+.google-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+.auth-divider{margin:16px 0 14px;color:#9ca3af;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.auth-input{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:11px 13px;font-size:.9rem;margin-bottom:8px;outline:none;font-family:var(--font-sans);color:#111827;background:#fff;display:block;box-sizing:border-box;}
+.auth-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.email-signin-btn{width:100%;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s;}
+.email-signin-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+#ep-error{display:none;margin-top:8px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;}
+#loading-overlay{position:fixed;inset:0;z-index:800;background:rgba(243,244,246,.9);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.spinner{width:36px;height:36px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--blue);animation:spin .7s linear infinite;}
+#loading-overlay p{font-size:14px;color:var(--muted);font-weight:600;}
+nav{background:var(--blue);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;}
+.nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.nav-logo{height:26px;filter:brightness(0) invert(1);flex-shrink:0;}
+.nav-breadcrumb{font-size:13px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:6px;overflow:hidden;}
+.nav-breadcrumb a{color:rgba(255,255,255,.75);text-decoration:none;white-space:nowrap;}
+.nav-breadcrumb a:hover{color:#fff;}
+.nav-breadcrumb .sep{opacity:.5;}
+.nav-breadcrumb .current{color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);}
+#user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;}
+#signout-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-family:var(--font-sans);}
+#signout-btn:hover{background:rgba(255,255,255,.2);}
+#app{display:none;}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px);}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}#sidebar{display:none;}}
+#sidebar{background:#161e2e;border-right:1px solid rgba(255,255,255,.06);padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-header{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-module-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.sidebar-module-name{font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sidebar-progress-wrap{margin-top:14px;}
+.sidebar-progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.sidebar-bar-bg{height:4px;background:rgba(255,255,255,.1);border-radius:50px;overflow:hidden;}
+.sidebar-bar-fill{height:100%;background:var(--success);border-radius:50px;width:0%;transition:width .5s;}
+#sidebar-pct{font-size:11px;color:rgba(255,255,255,.5);}
+.nav-items-list{padding:12px 0;flex:1;}
+.nav-item{padding:10px 20px;font-size:13px;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;display:flex;align-items:center;gap:8px;line-height:1.4;transition:all .15s;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9);border-left-color:var(--pbi);}
+.nav-item.active{background:rgba(242,200,17,.08);color:var(--pbi);border-left-color:var(--pbi);font-weight:600;}
+.nav-item.completed{color:var(--success);}
+.nav-item.completed::before{content:'✓ ';font-size:12px;color:var(--success);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:block;margin-bottom:6px;}
+.sidebar-footer a:hover{color:rgba(255,255,255,.8);}
+.nav-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:50px;white-space:nowrap;}
+.badge-lab{background:rgba(242,200,17,.2);color:#F2C811;}
+.badge-new{background:rgba(67,160,71,.2);color:#43A047;}
+.badge-adv{background:rgba(220,38,38,.15);color:#DC2626;}
+.main-content{background:#f4f6f9;padding:32px;}
+@media(max-width:640px){.main-content{padding:18px;}}
+.section-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;transition:box-shadow .2s;}
+.section-block:hover{box-shadow:var(--shadow);}
+.section-header{display:flex;align-items:center;gap:10px;padding:16px 20px;cursor:pointer;user-select:none;background:var(--bg2);border-bottom:1px solid transparent;transition:background .15s;}
+.section-header:hover{background:var(--bg3);}
+.section-num{font-size:12px;font-weight:800;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:50px;white-space:nowrap;}
+.section-title{flex:1;font-size:15px;font-weight:700;color:var(--text);}
+.section-toggle{font-size:11px;color:var(--muted);transition:transform .2s;}
+.section-toggle.open{transform:rotate(180deg);}
+.section-body{display:none;padding:24px 28px;border-top:1px solid var(--border);}
+.section-body.open{display:block;}
+.section-body p{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:14px;}
+.section-body p:last-child{margin-bottom:0;}
+.section-body h3{font-size:16px;font-weight:700;color:var(--text);margin:20px 0 10px;}
+.section-body h4{font-size:14px;font-weight:700;color:var(--blue);margin:16px 0 8px;}
+.section-body ul{margin:0 0 14px 20px;}
+.section-body ol{margin:0 0 14px 20px;}
+.section-body li{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:4px;}
+.section-body strong{color:var(--text);font-weight:700;}
+pre,.code-block{background:#0f1117;border:1px solid #2a3444;border-radius:8px;padding:16px 18px;margin:14px 0;overflow-x:auto;}
+pre code,.code-block code{font-family:var(--font-mono);font-size:13px;color:#e2e8f0;line-height:1.7;white-space:pre;}
+.inline-code{font-family:var(--font-mono);font-size:13px;background:#f0f4f9;color:#243A5E;padding:1px 5px;border-radius:4px;}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:14px;}
+.callout-info{background:#EEF2F8;border-color:var(--blue);color:var(--navy);}
+.callout-warn{background:#FFFCE0;border-color:var(--pbi);color:#92700a;}
+.callout-tip{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.callout strong{font-weight:700;}
+.lab{background:#FFFCE0;border:1px solid var(--pbi);border-radius:8px;padding:20px;margin:16px 0;}
+.lab h4{color:var(--pbi-dark);font-size:14px;font-weight:700;margin-bottom:10px;}
+.lab ol{margin-left:18px;}
+.lab li{font-size:14px;color:#5a4a00;line-height:1.8;margin-bottom:4px;}
+.lab-download{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--pbi-dark);background:rgba(242,200,17,.15);padding:6px 14px;border-radius:6px;border:1px solid var(--pbi);margin-bottom:12px;text-decoration:none;margin-right:8px;}
+.lab-expected{background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:12px 16px;margin-top:12px;font-size:13px;color:#1a6b3a;}
+.test-questions{background:var(--blue-light);border-radius:8px;padding:14px 18px;margin:16px 0;}
+.test-questions h4{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+.test-questions ul{margin-left:16px;}
+.test-questions li{font-size:13px;color:var(--navy);line-height:1.7;margin-bottom:4px;}
+.complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:11px 24px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-sans);background:var(--danger);color:#fff;transition:all .2s;}
+.complete-btn:hover:not(:disabled){background:var(--danger-dark);transform:translateY(-1px);}
+.complete-btn.done{background:var(--success);color:#fff;cursor:default;}
+.complete-btn:disabled{opacity:.8;cursor:default;transform:none;}
+.save-indicator{display:inline-block;margin-left:12px;font-size:13px;color:var(--muted);vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-card">
+    <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
+    <h2>Power BI Essentials</h2>
+    <p>Sign in with your SourceFuse account to access course content and save progress.</p>
+    <button class="google-btn" id="signin-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="auth-divider">OR</div>
+    <input id="ep-email" type="email" placeholder="you@sourcefuse.com" class="auth-input"/>
+    <input id="ep-password" type="password" placeholder="Password" class="auth-input"/>
+    <button onclick="sfEmailSignIn()" class="email-signin-btn">Sign in with Email</button>
+    <div id="ep-error"></div>
+  </div>
+</div>
+<div id="loading-overlay" style="display:none;"><div class="spinner"></div><p>Loading progress…</p></div>
+
+<div id="app">
+<nav>
+  <div class="nav-left">
+    <img class="nav-logo" src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SF"/>
+    <div class="nav-breadcrumb">
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">Power BI Essentials</a>
+      <span class="sep">›</span>
+      <span class="current">Module 4: DAX — Measures, Columns & Context</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <img id="user-avatar" src="" alt=""/>
+    <span id="user-name"></span>
+    <button id="signout-btn">Sign out</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-module-title">Module 1</div>
+      <div class="sidebar-module-name">DAX — Measures, Columns & Context</div>
+      <div class="sidebar-progress-wrap">
+        <div class="sidebar-progress-label"><span>Progress</span><span id="sidebar-pct">0%</span></div>
+        <div class="sidebar-bar-bg"><div class="sidebar-bar-fill" id="sidebar-bar"></div></div>
+      </div>
+    </div>
+    <div class="nav-items-list" id="nav-items"></div>
+    <div class="sidebar-footer">
+      
+      <a href="powerbi-module-2.html?v=2026-06-01-v1">Next Module →</a>
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">⬅ Back to Dashboard</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div id="sections-container"></div>
+  </main>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp }       from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC-I-IOCq2fCwa471fsD5xOn6SYQSBDp7Q",
+  authDomain:        "sfcertification-grafana.firebaseapp.com",
+  projectId:         "sfcertification-grafana",
+  storageBucket:     "sfcertification-grafana.firebasestorage.app",
+  messagingSenderId: "227322696511",
+  appId:             "1:227322696511:web:12e7ced7dd3d45fa06798a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const MODULE_KEY = 'pb4';
+const MODULE_NUM = 4;
+const BADGES     = { lab:'🧪 Lab', new:'✨ New', adv:'⚡ Advanced' };
+const BADGE_CLASSES = { lab:'badge-lab', new:'badge-new', adv:'badge-adv' };
+
+const SECTIONS = [
+  {
+    id: 1,
+    title: 'Introduction to DAX',
+    badge: '',
+    content: `
+<p><strong>DAX (Data Analysis Expressions)</strong> is the formula language of Power BI, Power Pivot, and Azure Analysis Services. It was designed from the ground up for <em>aggregate calculations over tables</em> — very different from cell-based spreadsheet formulas.</p>
+<h3>Where DAX is Used</h3>
+<ul>
+  <li><strong>Measures</strong> — aggregated calculations evaluated on demand in the context of whatever visual, filter, or slicer is active. Written in the Fields pane under a table.</li>
+  <li><strong>Calculated Columns</strong> — row-by-row calculations stored in the model table as a new column. Computed at refresh, stored in Vertipaq.</li>
+  <li><strong>Calculated Tables</strong> — entire tables generated by a DAX expression (e.g. CALENDAR(), SUMMARIZE(), CROSSJOIN()). Computed at refresh and stored.</li>
+</ul>
+<h3>DAX Syntax Basics</h3>
+<p>DAX syntax uses square brackets for column references and single quotes for table names:</p>
+<pre><code>Total Revenue = SUM(fact_sales[revenue])
+Profit Margin % = DIVIDE(SUM(fact_sales[profit]), SUM(fact_sales[revenue]), 0)</code></pre>
+<p>Key conventions:</p>
+<ul>
+  <li>Column references: <span class="inline-code">TableName[ColumnName]</span> — always include the table name in measures to avoid ambiguity.</li>
+  <li>Measure references: <span class="inline-code">[MeasureName]</span> — measures are referenced without a table name in the square brackets.</li>
+  <li>Function names are case-insensitive: SUM, Sum, sum all work — but uppercase is the convention.</li>
+  <li>DAX is context-sensitive — the same measure can return different values in different visual contexts.</li>
+</ul>
+<h3>DAX vs Excel Formulas</h3>
+<p>Excel formulas reference cells (=A1+B1). DAX formulas reference columns and tables. In Excel, SUM(A1:A10) sums 10 specific cells. In DAX, SUM(fact_sales[revenue]) sums all rows in the revenue column that are visible in the current filter context — which changes dynamically as users interact with slicers and visuals.</p>
+<div class="callout callout-info"><strong>Key mindset shift:</strong> In Excel, you think "which cells?" In DAX, you think "which rows are visible right now, and what do I want to calculate over them?"</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is the difference between a DAX measure and a calculated column in terms of when they are computed?</li><li>Write the correct syntax to reference the revenue column in fact_sales inside a DAX measure.</li><li>Why does the same DAX measure return different values in different rows of a matrix visual?</li></ul></div>`
+  },
+  {
+    id: 2,
+    title: 'Measures vs. Calculated Columns',
+    badge: '',
+    content: `
+<p>Choosing correctly between a measure and a calculated column is one of the most important DAX decisions. The wrong choice leads to incorrect results, poor performance, or both.</p>
+<h3>Calculated Columns</h3>
+<p>A calculated column is a new column added to a table via DAX. It is evaluated <strong>row by row</strong> at data refresh and the results are stored in the Vertipaq engine for every row.</p>
+<pre><code>-- Calculated column in fact_sales
+Profit Margin Per Row = DIVIDE(fact_sales[profit], fact_sales[revenue], 0)</code></pre>
+<p>Use calculated columns when you need to:</p>
+<ul>
+  <li><strong>Slice or filter by the result</strong> — a column can be placed in a slicer or used as a row/column in a matrix. A measure cannot.</li>
+  <li><strong>Use RELATED to look up a value from a dimension</strong> — e.g. add customer_region to the fact table for row-level segmentation: <span class="inline-code">Customer Region = RELATED(dim_customers[region])</span></li>
+  <li><strong>Create a category bucket</strong> — e.g. label orders as "High Value" / "Standard" based on revenue amount.</li>
+</ul>
+<h3>Measures</h3>
+<p>A measure is a DAX formula that is evaluated <strong>on demand</strong> based on the current filter context of the visual requesting it. Measures store no data — they compute a result at query time and discard it.</p>
+<pre><code>Total Revenue    = SUM(fact_sales[revenue])
+Profit Margin %  = DIVIDE([Total Revenue], SUM(fact_sales[profit]), 0)
+Avg Order Value  = AVERAGEX(fact_sales, fact_sales[revenue])</code></pre>
+<p>Use measures when you need to:</p>
+<ul>
+  <li><strong>Aggregate</strong> — any SUM, COUNT, AVERAGE, MIN, MAX of a column.</li>
+  <li><strong>Compare across contexts</strong> — % of total, year-over-year, running totals.</li>
+  <li><strong>Anything that needs to respond to slicer selections</strong> — measures always recalculate based on what the user has filtered.</li>
+</ul>
+<h3>The Decision Rule</h3>
+<div class="callout callout-warn"><strong>If in doubt, use a measure.</strong> Measures add zero rows to the model and compute only when needed. Calculated columns add (row count × 1 value) of stored data for every row. On a 10-million-row fact table, one unnecessary calculated column wastes 10 million stored values.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>A calculated column vs a measure: which is stored in the model, and which is computed on demand?</li><li>You need to use region as a slicer on a dashboard. Should you create a calculated column or a measure to add it to the fact table?</li><li>You need to show total revenue that responds to a date slicer. Which type of DAX object is correct?</li></ul></div>`
+  },
+  {
+    id: 3,
+    title: 'Row Context vs. Filter Context',
+    badge: '',
+    content: `
+<p>Understanding evaluation context is the single most important concept in DAX. Without it, calculated columns and measures produce confusing results that seem to contradict each other.</p>
+<h3>Row Context</h3>
+<p>Row context exists during the evaluation of a <strong>calculated column</strong>. When Power BI evaluates a calculated column, it processes each row one at a time — the "current row" is known. You can reference column values directly:</p>
+<pre><code>-- This works in a calculated column — row context provides the current row's values
+Profit Per Unit = fact_sales[profit] / fact_sales[quantity]</code></pre>
+<p>Row context does <em>not</em> automatically see related tables. To pull a value from a related dimension in a calculated column, use <span class="inline-code">RELATED()</span>:</p>
+<pre><code>Customer Region = RELATED(dim_customers[region])  -- follows the relationship to dim_customers</code></pre>
+<h3>Filter Context</h3>
+<p>Filter context exists during the evaluation of a <strong>measure</strong>. There is no "current row" — the measure sees only the <em>set of rows</em> that pass all active filters (slicers, row/column headers, visual filters, page filters). The measure aggregates over that set.</p>
+<pre><code>Total Revenue = SUM(fact_sales[revenue])
+-- In a matrix with region = "North" in the row header:
+-- Filter context = { region = "North" }
+-- SUM runs over only North region rows</code></pre>
+<h3>Context Transition</h3>
+<p>When you call <span class="inline-code">CALCULATE()</span> inside a row context (e.g. inside SUMX iteration), the row context is converted into a filter context. This is called <strong>context transition</strong> and is how iterating functions interact with measures.</p>
+<pre><code>-- SUMX iterates row by row (row context), then calls CALCULATE → context transition
+Revenue with Context Transition =
+  SUMX(fact_sales, CALCULATE(SUM(fact_sales[revenue])))</code></pre>
+<div class="callout callout-info"><strong>Summary:</strong> Row context = "I know which row I'm on" (calculated columns, iterators). Filter context = "I know which rows are visible" (measures, CALCULATE).</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In which type of DAX object does row context exist by default?</li><li>How do you access a column from a related table inside a calculated column?</li><li>What happens to row context when CALCULATE() is called inside an iterator function?</li></ul></div>`
+  },
+  {
+    id: 4,
+    title: 'CALCULATE & Context Modification',
+    badge: '',
+    content: `
+<p><span class="inline-code">CALCULATE</span> is the most important and most powerful function in DAX. It evaluates an expression in a <strong>modified filter context</strong>. Nearly all advanced DAX is built on CALCULATE.</p>
+<h3>CALCULATE Syntax</h3>
+<pre><code>CALCULATE( &lt;expression&gt;, &lt;filter1&gt;, &lt;filter2&gt;, ... )</code></pre>
+<ul>
+  <li><strong>&lt;expression&gt;</strong> — any DAX expression or measure to evaluate.</li>
+  <li><strong>&lt;filter1&gt;, &lt;filter2&gt;, ...</strong> — one or more filter modifiers that change the filter context before evaluating the expression.</li>
+</ul>
+<h3>Common Filter Modifiers</h3>
+<ul>
+  <li><strong>ALL(table)</strong> — removes all filters from the specified table.</li>
+  <li><strong>ALL(table[column])</strong> — removes filters only from the specified column.</li>
+  <li><strong>ALLEXCEPT(table, col1, col2)</strong> — removes all filters except those on the specified columns.</li>
+  <li><strong>ALLSELECTED(table)</strong> — removes internal filters but respects the outermost filter context (the visual's slicers). Used for "% of selection" calculations.</li>
+  <li><strong>FILTER(table, condition)</strong> — adds a row-by-row filter condition.</li>
+  <li><strong>KEEPFILTERS(expression)</strong> — adds rather than replaces a filter.</li>
+</ul>
+<h3>Example: % of Total</h3>
+<pre><code>Revenue % of Total =
+DIVIDE(
+  [Total Revenue],
+  CALCULATE([Total Revenue], ALL(dim_customers))
+)</code></pre>
+<p>Without ALL, both numerator and denominator would filter by whatever the visual's row context shows — giving 100% for every row. ALL removes the customer filter from the denominator, computing the company-wide total.</p>
+<h3>Example: Filter by Condition</h3>
+<pre><code>Revenue High Value Orders =
+CALCULATE(
+  SUM(fact_sales[revenue]),
+  fact_sales[revenue] > 500
+)</code></pre>
+<div class="callout callout-warn"><strong>Remember:</strong> CALCULATE always evaluates its filter arguments first, modifies the context, then evaluates the expression. The order matters — filters are applied before the expression runs.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What does ALL(dim_customers) do when used as a CALCULATE filter modifier?</li><li>Write a CALCULATE expression that computes total revenue for only the "Electronics" category.</li><li>What is the difference between ALL() and ALLSELECTED() in a % of total measure?</li></ul></div>`
+  },
+  {
+    id: 5,
+    title: 'Core Aggregation & Iterator Functions',
+    badge: '',
+    content: `
+<p>DAX has two families of aggregation functions: <strong>simple aggregators</strong> (SUM, COUNT, AVERAGE) that aggregate one column, and <strong>iterator functions</strong> (SUMX, COUNTX, AVERAGEX) that iterate row by row and evaluate an expression per row before aggregating.</p>
+<h3>Simple Aggregators</h3>
+<pre><code>Total Revenue  = SUM(fact_sales[revenue])
+Order Count    = COUNTROWS(fact_sales)       -- counts rows (preferred over COUNT for tables)
+Unique Custmrs = DISTINCTCOUNT(fact_sales[customer_id])
+Avg Revenue    = AVERAGE(fact_sales[revenue])
+Min Order Date = MIN(fact_sales[order_date])</code></pre>
+<p>Use COUNTROWS(table) rather than COUNT(column) — COUNTROWS counts all rows including those with null values in any specific column, and is more explicit about intent.</p>
+<h3>Iterator Functions (X-functions)</h3>
+<p>Iterator functions take a table as their first argument and an expression as the second. They iterate over each row of the table (establishing row context), evaluate the expression per row, and then aggregate all the results.</p>
+<pre><code>-- Revenue per order × quantity margin, then summed
+Weighted Revenue = SUMX(fact_sales, fact_sales[revenue] * fact_sales[quantity])
+
+-- Average profit margin per order (not average of the column — proper per-row calculation)
+Avg Profit Margin = AVERAGEX(fact_sales, DIVIDE(fact_sales[profit], fact_sales[revenue], 0))</code></pre>
+<h3>DIVIDE — Safe Division</h3>
+<p>Always use <span class="inline-code">DIVIDE(numerator, denominator, alternate_result)</span> instead of the / operator. DIVIDE returns the alternate result (default 0) when the denominator is zero or blank — avoiding division-by-zero errors that would show ERROR in the visual.</p>
+<pre><code>Profit Margin % = DIVIDE(SUM(fact_sales[profit]), SUM(fact_sales[revenue]), 0)</code></pre>
+<h3>IF and IFERROR</h3>
+<pre><code>-- Conditional measure
+Revenue Category =
+IF([Total Revenue] > 100000, "High", IF([Total Revenue] > 50000, "Mid", "Low"))
+
+-- Trap errors in a measure (use sparingly — prefer DIVIDE for division)
+Safe Calc = IFERROR([Complex Measure], 0)</code></pre>
+<div class="callout callout-tip"><strong>SUMX vs SUM:</strong> SUM(column) is faster because it uses Vertipaq's columnar storage directly. SUMX(table, expression) creates row context and evaluates an expression per row — more flexible but slower on large tables. Use SUM whenever the column already contains the values you need to sum.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is the difference between SUM(column) and SUMX(table, expression)?</li><li>Why is DIVIDE() preferred over the / operator in DAX?</li><li>Write a measure that counts the distinct number of customers in fact_sales.</li></ul></div>`
+  },
+  {
+    id: 6,
+    title: 'Time Intelligence in DAX',
+    badge: '',
+    content: `
+<p>Time intelligence functions compute calculations relative to calendar periods — year-to-date, period-over-period comparisons, running totals. They are among the most used DAX functions in business reporting.</p>
+<h3>Date Table Requirement</h3>
+<p>All time intelligence functions require a <strong>marked Date Table</strong> in your model — a table with one row per calendar day with no gaps, and the date column set as the key. Without it, functions like TOTALYTD and SAMEPERIODLASTYEAR return errors or incorrect results.</p>
+<h3>Period-to-Date Functions</h3>
+<pre><code>Revenue YTD = TOTALYTD([Total Revenue], dim_date[date])
+Revenue QTD = TOTALQTD([Total Revenue], dim_date[date])
+Revenue MTD = TOTALMTD([Total Revenue], dim_date[date])</code></pre>
+<p>TOTALYTD resets to zero on the first day of each new year (or the first day of your fiscal year if you pass a fiscal year-end date as the third argument).</p>
+<h3>Period-over-Period Comparisons</h3>
+<pre><code>Revenue LY = CALCULATE([Total Revenue], SAMEPERIODLASTYEAR(dim_date[date]))
+
+Revenue YoY Growth =
+DIVIDE([Total Revenue] - [Revenue LY], [Revenue LY], 0)
+
+Revenue Prior Month = CALCULATE([Total Revenue], PREVIOUSMONTH(dim_date[date]))</code></pre>
+<h3>DATEADD — Flexible Date Offsets</h3>
+<pre><code>Revenue 3 Months Ago =
+CALCULATE([Total Revenue], DATEADD(dim_date[date], -3, MONTH))</code></pre>
+<p>DATEADD shifts the date context by a specified number of intervals (DAY, MONTH, QUARTER, YEAR). Use negative values to go back in time, positive to go forward.</p>
+<h3>Running Total</h3>
+<pre><code>Revenue Running Total =
+CALCULATE(
+  [Total Revenue],
+  DATESYTD(dim_date[date])
+)</code></pre>
+<div class="callout callout-info"><strong>Fiscal year tip:</strong> Pass a fiscal year-end as the third argument to TOTALYTD and DATESYTD: <span class="inline-code">TOTALYTD([Total Revenue], dim_date[date], "3/31")</span> uses March 31 as the fiscal year-end (common in many Asia-Pacific organisations).</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What is the prerequisite for using time intelligence functions like TOTALYTD?</li><li>Write the DAX measure that computes revenue for the same period in the previous year.</li><li>What does DATEADD(dim_date[date], -1, YEAR) return in a filter context?</li></ul></div>`
+  },
+  {
+    id: 7,
+    title: 'Common DAX Patterns',
+    badge: '',
+    content: `
+<p>These are the most frequently used DAX patterns in real-world Power BI reports. Mastering these covers the majority of business reporting requirements.</p>
+<h3>% of Total (with ALL)</h3>
+<pre><code>Revenue % of Total =
+DIVIDE(
+  [Total Revenue],
+  CALCULATE([Total Revenue], ALL(fact_sales))
+, 0)</code></pre>
+<h3>% of Parent (with ALLEXCEPT)</h3>
+<pre><code>Revenue % of Category =
+DIVIDE(
+  [Total Revenue],
+  CALCULATE([Total Revenue], ALLEXCEPT(dim_product, dim_product[category]))
+, 0)</code></pre>
+<h3>Cumulative Total (Running Sum)</h3>
+<pre><code>Cumulative Revenue =
+CALCULATE(
+  [Total Revenue],
+  FILTER(
+    ALL(dim_date[date]),
+    dim_date[date] <= MAX(dim_date[date])
+  )
+)</code></pre>
+<h3>RANKX — Dynamic Ranking</h3>
+<pre><code>Customer Revenue Rank =
+RANKX(
+  ALL(dim_customers[customer_name]),
+  [Total Revenue],
+  ,
+  DESC,
+  DENSE
+)</code></pre>
+<p>RANKX iterates over all customers (ALL removes the filter), evaluates Total Revenue for each, and returns the rank of the current customer from highest (1) to lowest.</p>
+<h3>VAR…RETURN — Readable Multi-Step Measures</h3>
+<pre><code>Profit Margin with Label =
+VAR Rev = [Total Revenue]
+VAR Prof = SUM(fact_sales[profit])
+VAR Margin = DIVIDE(Prof, Rev, 0)
+RETURN
+  IF(Margin >= 0.3, "High (" & FORMAT(Margin, "0%") & ")",
+  IF(Margin >= 0.15, "Mid (" & FORMAT(Margin, "0%") & ")",
+  "Low (" & FORMAT(Margin, "0%") & ")"))
+</code></pre>
+<p>VAR…RETURN is the recommended pattern for complex measures. Variables are evaluated once (not recalculated on every reference), improving both performance and readability.</p>
+<div class="callout callout-tip"><strong>Always use VAR…RETURN</strong> for measures with more than 2 sub-calculations. It prevents the same sub-expression from being computed multiple times and makes the logic easy to read and debug.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>Why is VAR…RETURN preferred over repeating sub-expressions in a DAX measure?</li><li>Write a RANKX expression that ranks customers by Total Revenue from highest to lowest.</li><li>What does ALL(fact_sales) do when used in a CALCULATE inside a % of total measure?</li></ul></div>`
+  },
+  {
+    id: 8,
+    title: 'Lab: Build a Measure Library',
+    badge: 'lab',
+    content: `
+<div class="lab">
+  <h4>🧪 Lab 4 — DAX Measure Library for the SF Sales Model</h4>
+  <p>Using the star schema built in Lab 3, write a full set of business measures covering revenue, margin, YoY comparison, and customer ranking.</p>
+  <a class="lab-download" href="../datasets/sf-sales-orders.csv" download>⬇ sf-sales-orders.csv</a>
+  <a class="lab-download" href="../datasets/sf-marketing-spend.csv" download>⬇ sf-marketing-spend.csv</a>
+  <ol>
+    <li>Open your Lab 3 model (or reload sf-sales-orders and sf-customers with the star schema). Right-click the <strong>fact_sales</strong> table in the Fields pane → <strong>New Measure</strong>. Create each measure below — naming them exactly as shown.</li>
+    <li><strong>Total Revenue</strong><pre><code>Total Revenue = SUM(fact_sales[revenue])</code></pre></li>
+    <li><strong>Total Profit</strong><pre><code>Total Profit = SUM(fact_sales[profit])</code></pre></li>
+    <li><strong>Profit Margin %</strong><pre><code>Profit Margin % = DIVIDE([Total Profit], [Total Revenue], 0)</code></pre></li>
+    <li><strong>Order Count</strong><pre><code>Order Count = COUNTROWS(fact_sales)</code></pre></li>
+    <li><strong>Avg Order Value</strong><pre><code>Avg Order Value = DIVIDE([Total Revenue], [Order Count], 0)</code></pre></li>
+    <li><strong>Revenue YTD</strong><pre><code>Revenue YTD = TOTALYTD([Total Revenue], dim_date[date])</code></pre></li>
+    <li><strong>Revenue LY</strong><pre><code>Revenue LY = CALCULATE([Total Revenue], SAMEPERIODLASTYEAR(dim_date[date]))</code></pre></li>
+    <li><strong>Revenue YoY %</strong><pre><code>Revenue YoY % = DIVIDE([Total Revenue] - [Revenue LY], [Revenue LY], 0)</code></pre></li>
+    <li><strong>Customer Rank</strong><pre><code>Customer Rank = RANKX(ALL(dim_customers[customer_name]), [Total Revenue],, DESC, DENSE)</code></pre></li>
+    <li>Load <span class="inline-code">sf-marketing-spend.csv</span> as a new table. Create a measure: <span class="inline-code">ROI = DIVIDE([Total Revenue] - SUM(sf_marketing_spend[spend]), SUM(sf_marketing_spend[spend]), 0)</span></li>
+    <li>Build a <strong>matrix visual</strong>: Rows = dim_date[year] + month_name, Values = [Total Revenue], [Revenue LY], [Revenue YoY %]. Verify YoY % shows blanks for the earliest year (no prior year to compare).</li>
+    <li>Build a <strong>table visual</strong>: dim_customers[customer_name], [Total Revenue], [Customer Rank]. Sort by rank ascending to see top customers.</li>
+  </ol>
+  <div class="lab-expected"><strong>Expected result:</strong> 9 measures in the fact_sales table, a matrix showing YoY trends, and a ranked customer table. Revenue YoY % should be blank for 2022 (if that is the first year of data).</div>
+</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>After creating a TOTALYTD measure, it shows blank for January of each year. What is the most likely cause?</li><li>In the Customer Rank measure, what does ALL(dim_customers[customer_name]) do?</li><li>Why does Revenue YoY % return BLANK for the first year of data?</li></ul></div>`
+  }
+];
+
+let _uid = null, _completed = [];
+
+document.getElementById('signin-btn').addEventListener('click', () => {
+  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+    document.getElementById('ep-error').textContent = e.message||'Sign-in failed.';
+    document.getElementById('ep-error').style.display='block';
+  });
+});
+document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    if (!user.email||!user.email.endsWith('@sourcefuse.com')) {
+      document.getElementById('ep-error').textContent='Only @sourcefuse.com accounts are allowed.';
+      document.getElementById('ep-error').style.display='block';
+      await signOut(auth); return;
+    }
+    _uid=user.uid;
+    document.getElementById('user-avatar').src=user.photoURL||'';
+    document.getElementById('user-name').textContent=user.displayName||user.email;
+    document.getElementById('auth-overlay').style.display='none';
+    document.getElementById('loading-overlay').style.display='flex';
+    await loadCompleted();
+    document.getElementById('loading-overlay').style.display='none';
+    document.getElementById('app').style.display='block';
+    renderAll();
+  } else {
+    _uid=null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-overlay').style.display='flex';
+  }
+});
+
+window.sfEmailSignIn = function() {
+  const email=(document.getElementById('ep-email').value||'').trim().toLowerCase();
+  const pwd=document.getElementById('ep-password').value||'';
+  const errEl=document.getElementById('ep-error');
+  errEl.style.display='none';
+  if(!email||!pwd){errEl.textContent='Please enter your email and password.';errEl.style.display='block';return;}
+  if(!email.endsWith('@sourcefuse.com')){errEl.textContent='Only @sourcefuse.com accounts are allowed.';errEl.style.display='block';return;}
+  signInWithEmailAndPassword(auth,email,pwd).catch(e=>{
+    errEl.textContent=(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')?'Incorrect password.'
+      :(e.code==='auth/user-not-found')?'No account found for this email.':e.message;
+    errEl.style.display='block';
+  });
+};
+
+async function loadCompleted(){const snap=await getDoc(doc(db,'progress',_uid));_completed=snap.exists()?(snap.data()[MODULE_KEY]||[]):[];}
+async function markComplete(id){
+  if(!_uid||_completed.includes(id))return;
+  _completed=[..._completed,id];
+  const ref=doc(db,'progress',_uid);const snap=await getDoc(ref);
+  if(!snap.exists()){await setDoc(ref,{[MODULE_KEY]:_completed,updatedAt:serverTimestamp()});}
+  else{await updateDoc(ref,{[MODULE_KEY]:arrayUnion(id),updatedAt:serverTimestamp()});}
+  updateSectionUI(id);updateSidebarProgress();
+}
+function renderAll(){renderSections();renderNavItems();updateSidebarProgress();}
+function renderSections(){
+  const c=document.getElementById('sections-container');
+  c.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const bh=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="section-block" id="block-${s.id}">
+      <div class="section-header" onclick="toggleSection(${s.id})">
+        <span class="section-num">${MODULE_NUM}.${s.id}</span>
+        <span class="section-title">${s.title}</span>
+        ${bh}${done?'<span style="color:#43A047;font-size:.85rem;">✓</span>':''}
+        <span class="section-toggle" id="toggle-${s.id}">▼</span>
+      </div>
+      <div class="section-body" id="body-${s.id}">
+        ${s.content}
+        <button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="handleMarkComplete(${s.id})" ${done?'disabled':''}>
+          ${done?'✅ Completed':'✔ Mark as Completed'}
+        </button>
+        <span class="save-indicator" id="indicator-${s.id}"></span>
+      </div>
+    </div>`;
+  }).join('');
+  const fi=SECTIONS.find(s=>!_completed.includes(s.id));
+  if(fi)toggleSection(fi.id);else if(SECTIONS.length>0)toggleSection(SECTIONS[0].id);
+}
+function renderNavItems(){
+  const nav=document.getElementById('nav-items');
+  nav.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const b=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="nav-item ${done?'completed':''}" id="nav-${s.id}" onclick="scrollToSection(${s.id})"><span>${MODULE_NUM}.${s.id} ${s.title}</span>${b}</div>`;
+  }).join('');
+}
+function updateSidebarProgress(){const done=_completed.length;const pct=Math.round((done/SECTIONS.length)*100);document.getElementById('sidebar-bar').style.width=pct+'%';document.getElementById('sidebar-pct').textContent=pct+'%';}
+function updateSectionUI(id){
+  const btn=document.getElementById(`complete-btn-${id}`);const nav=document.getElementById(`nav-${id}`);const blk=document.getElementById(`block-${id}`);
+  if(btn){btn.classList.add('done');btn.disabled=true;btn.textContent='✅ Completed';}
+  if(nav)nav.classList.add('completed');
+  const hdr=blk?.querySelector('.section-header');
+  if(hdr&&!hdr.querySelector('.done-tick')){const tick=document.createElement('span');tick.className='done-tick';tick.style.cssText='color:#43A047;font-size:.85rem;';tick.textContent='✓';hdr.insertBefore(tick,hdr.querySelector('.section-toggle'));}
+}
+window.handleMarkComplete=async function(id){const btn=document.getElementById(`complete-btn-${id}`);if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='⏳ Saving…';const ind=document.getElementById(`indicator-${id}`);if(ind)ind.textContent='Saving…';await markComplete(id);if(ind){ind.textContent='Saved ✓';setTimeout(()=>ind.textContent='',2000);}};
+window.toggleSection=function(id){SECTIONS.forEach(s=>{const body=document.getElementById(`body-${s.id}`);const toggle=document.getElementById(`toggle-${s.id}`);const nav=document.getElementById(`nav-${s.id}`);if(s.id===id){const isOpen=body.classList.contains('open');body.classList.toggle('open',!isOpen);toggle?.classList.toggle('open',!isOpen);nav?.classList.toggle('active',!isOpen);}else{body.classList.remove('open');toggle?.classList.remove('open');nav?.classList.remove('active');}});};
+window.scrollToSection=function(id){toggleSection(id);document.getElementById(`block-${id}`)?.scrollIntoView({behavior:'smooth',block:'start'})};
+window.markComplete=markComplete;
+</script>
+</body>
+</html>
