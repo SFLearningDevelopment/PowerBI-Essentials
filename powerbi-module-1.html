@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<title>Power BI Essentials — Module 1: Getting Started with Power BI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--blue:#243A5E;--blue-dark:#1A2A40;--blue-light:#EEF2F8;--blue-mid:#7B96C4;--navy:#1A2A40;--pbi:#F2C811;--pbi-dark:#C8A200;--pbi-soft:#FFFCE0;--text:#1a2332;--text2:#4a5568;--muted:#8fa3bc;--border:#d0dae8;--bg:#0f1117;--bg2:#ffffff;--bg3:#f0f4f9;--green:#1a6b3a;--green-light:#e8f5ed;--success:#43A047;--success-dark:#2E7D32;--danger:#DC2626;--danger-dark:#B91C1C;--radius:12px;--shadow:0 4px 12px rgba(15,23,42,.06);--font-sans:'Source Sans 3','Segoe UI',system-ui,sans-serif;--font-mono:'JetBrains Mono','Fira Code','Source Code Pro',Menlo,monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--blue);text-decoration:none;}a:hover{color:var(--blue-dark);}
+code,pre,.mono{font-family:var(--font-mono);}
+@keyframes spin{to{transform:rotate(360deg);}}
+#auth-overlay,.auth-overlay{position:fixed;inset:0;background:rgba(20,30,50,.85);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.auth-card{background:#fff;border-radius:20px;padding:48px 44px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+.auth-card img{height:38px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;}
+.auth-card h2{font-size:1.3rem;font-weight:800;color:#0f172a;margin-bottom:8px;}
+.auth-card p{color:#64748b;font-size:.95rem;line-height:1.6;margin-bottom:24px;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:.95rem;font-weight:700;cursor:pointer;width:100%;transition:all .2s;}
+.google-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+.auth-divider{margin:16px 0 14px;color:#9ca3af;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.auth-input{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:11px 13px;font-size:.9rem;margin-bottom:8px;outline:none;font-family:var(--font-sans);color:#111827;background:#fff;display:block;box-sizing:border-box;}
+.auth-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.email-signin-btn{width:100%;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s;}
+.email-signin-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
+#ep-error{display:none;margin-top:8px;font-size:13px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;}
+#loading-overlay{position:fixed;inset:0;z-index:800;background:rgba(243,244,246,.9);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.spinner{width:36px;height:36px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--blue);animation:spin .7s linear infinite;}
+#loading-overlay p{font-size:14px;color:var(--muted);font-weight:600;}
+nav{background:var(--blue);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;}
+.nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.nav-logo{height:26px;filter:brightness(0) invert(1);flex-shrink:0;}
+.nav-breadcrumb{font-size:13px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:6px;overflow:hidden;}
+.nav-breadcrumb a{color:rgba(255,255,255,.75);text-decoration:none;white-space:nowrap;}
+.nav-breadcrumb a:hover{color:#fff;}
+.nav-breadcrumb .sep{opacity:.5;}
+.nav-breadcrumb .current{color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);}
+#user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;}
+#signout-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-family:var(--font-sans);}
+#signout-btn:hover{background:rgba(255,255,255,.2);}
+#app{display:none;}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px);}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}#sidebar{display:none;}}
+#sidebar{background:#161e2e;border-right:1px solid rgba(255,255,255,.06);padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-header{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-module-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.sidebar-module-name{font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sidebar-progress-wrap{margin-top:14px;}
+.sidebar-progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.sidebar-bar-bg{height:4px;background:rgba(255,255,255,.1);border-radius:50px;overflow:hidden;}
+.sidebar-bar-fill{height:100%;background:var(--success);border-radius:50px;width:0%;transition:width .5s;}
+#sidebar-pct{font-size:11px;color:rgba(255,255,255,.5);}
+.nav-items-list{padding:12px 0;flex:1;}
+.nav-item{padding:10px 20px;font-size:13px;color:rgba(255,255,255,.6);cursor:pointer;border-left:3px solid transparent;display:flex;align-items:center;gap:8px;line-height:1.4;transition:all .15s;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9);border-left-color:var(--pbi);}
+.nav-item.active{background:rgba(242,200,17,.08);color:var(--pbi);border-left-color:var(--pbi);font-weight:600;}
+.nav-item.completed{color:var(--success);}
+.nav-item.completed::before{content:'✓ ';font-size:12px;color:var(--success);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:block;margin-bottom:6px;}
+.sidebar-footer a:hover{color:rgba(255,255,255,.8);}
+.nav-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:50px;white-space:nowrap;}
+.badge-lab{background:rgba(242,200,17,.2);color:#F2C811;}
+.badge-new{background:rgba(67,160,71,.2);color:#43A047;}
+.badge-adv{background:rgba(220,38,38,.15);color:#DC2626;}
+.main-content{background:#f4f6f9;padding:32px;}
+@media(max-width:640px){.main-content{padding:18px;}}
+.section-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;transition:box-shadow .2s;}
+.section-block:hover{box-shadow:var(--shadow);}
+.section-header{display:flex;align-items:center;gap:10px;padding:16px 20px;cursor:pointer;user-select:none;background:var(--bg2);border-bottom:1px solid transparent;transition:background .15s;}
+.section-header:hover{background:var(--bg3);}
+.section-num{font-size:12px;font-weight:800;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:50px;white-space:nowrap;}
+.section-title{flex:1;font-size:15px;font-weight:700;color:var(--text);}
+.section-toggle{font-size:11px;color:var(--muted);transition:transform .2s;}
+.section-toggle.open{transform:rotate(180deg);}
+.section-body{display:none;padding:24px 28px;border-top:1px solid var(--border);}
+.section-body.open{display:block;}
+.section-body p{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:14px;}
+.section-body p:last-child{margin-bottom:0;}
+.section-body h3{font-size:16px;font-weight:700;color:var(--text);margin:20px 0 10px;}
+.section-body h4{font-size:14px;font-weight:700;color:var(--blue);margin:16px 0 8px;}
+.section-body ul{margin:0 0 14px 20px;}
+.section-body ol{margin:0 0 14px 20px;}
+.section-body li{color:var(--text2);font-size:14.5px;line-height:1.8;margin-bottom:4px;}
+.section-body strong{color:var(--text);font-weight:700;}
+pre,.code-block{background:#0f1117;border:1px solid #2a3444;border-radius:8px;padding:16px 18px;margin:14px 0;overflow-x:auto;}
+pre code,.code-block code{font-family:var(--font-mono);font-size:13px;color:#e2e8f0;line-height:1.7;white-space:pre;}
+.inline-code{font-family:var(--font-mono);font-size:13px;background:#f0f4f9;color:#243A5E;padding:1px 5px;border-radius:4px;}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:14px;}
+.callout-info{background:#EEF2F8;border-color:var(--blue);color:var(--navy);}
+.callout-warn{background:#FFFCE0;border-color:var(--pbi);color:#92700a;}
+.callout-tip{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.callout strong{font-weight:700;}
+.lab{background:#FFFCE0;border:1px solid var(--pbi);border-radius:8px;padding:20px;margin:16px 0;}
+.lab h4{color:var(--pbi-dark);font-size:14px;font-weight:700;margin-bottom:10px;}
+.lab ol{margin-left:18px;}
+.lab li{font-size:14px;color:#5a4a00;line-height:1.8;margin-bottom:4px;}
+.lab-download{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--pbi-dark);background:rgba(242,200,17,.15);padding:6px 14px;border-radius:6px;border:1px solid var(--pbi);margin-bottom:12px;text-decoration:none;margin-right:8px;}
+.lab-expected{background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:12px 16px;margin-top:12px;font-size:13px;color:#1a6b3a;}
+.test-questions{background:var(--blue-light);border-radius:8px;padding:14px 18px;margin:16px 0;}
+.test-questions h4{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+.test-questions ul{margin-left:16px;}
+.test-questions li{font-size:13px;color:var(--navy);line-height:1.7;margin-bottom:4px;}
+.complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:11px 24px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-sans);background:var(--danger);color:#fff;transition:all .2s;}
+.complete-btn:hover:not(:disabled){background:var(--danger-dark);transform:translateY(-1px);}
+.complete-btn.done{background:var(--success);color:#fff;cursor:default;}
+.complete-btn:disabled{opacity:.8;cursor:default;transform:none;}
+.save-indicator{display:inline-block;margin-left:12px;font-size:13px;color:var(--muted);vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-card">
+    <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
+    <h2>Power BI Essentials</h2>
+    <p>Sign in with your SourceFuse account to access course content and save progress.</p>
+    <button class="google-btn" id="signin-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="auth-divider">OR</div>
+    <input id="ep-email" type="email" placeholder="you@sourcefuse.com" class="auth-input"/>
+    <input id="ep-password" type="password" placeholder="Password" class="auth-input"/>
+    <button onclick="sfEmailSignIn()" class="email-signin-btn">Sign in with Email</button>
+    <div id="ep-error"></div>
+  </div>
+</div>
+<div id="loading-overlay" style="display:none;"><div class="spinner"></div><p>Loading progress…</p></div>
+
+<div id="app">
+<nav>
+  <div class="nav-left">
+    <img class="nav-logo" src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SF"/>
+    <div class="nav-breadcrumb">
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">Power BI Essentials</a>
+      <span class="sep">›</span>
+      <span class="current">Module 1: Getting Started with Power BI</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <img id="user-avatar" src="" alt=""/>
+    <span id="user-name"></span>
+    <button id="signout-btn">Sign out</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-module-title">Module 1</div>
+      <div class="sidebar-module-name">Getting Started with Power BI</div>
+      <div class="sidebar-progress-wrap">
+        <div class="sidebar-progress-label"><span>Progress</span><span id="sidebar-pct">0%</span></div>
+        <div class="sidebar-bar-bg"><div class="sidebar-bar-fill" id="sidebar-bar"></div></div>
+      </div>
+    </div>
+    <div class="nav-items-list" id="nav-items"></div>
+    <div class="sidebar-footer">
+      
+      <a href="powerbi-module-2.html?v=2026-06-01-v1">Next Module →</a>
+      <a href="powerbi-dashboard.html?v=2026-06-01-v1">⬅ Back to Dashboard</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div id="sections-container"></div>
+  </main>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp }       from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC-I-IOCq2fCwa471fsD5xOn6SYQSBDp7Q",
+  authDomain:        "sfcertification-grafana.firebaseapp.com",
+  projectId:         "sfcertification-grafana",
+  storageBucket:     "sfcertification-grafana.firebasestorage.app",
+  messagingSenderId: "227322696511",
+  appId:             "1:227322696511:web:12e7ced7dd3d45fa06798a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const MODULE_KEY = 'pb1';
+const MODULE_NUM = 1;
+const BADGES     = { lab:'🧪 Lab', new:'✨ New', adv:'⚡ Advanced' };
+const BADGE_CLASSES = { lab:'badge-lab', new:'badge-new', adv:'badge-adv' };
+
+const SECTIONS = [
+  {
+    id: 1,
+    title: 'The Power BI Ecosystem',
+    badge: '',
+    content: `
+<p>Power BI is Microsoft's cloud-connected analytics platform — a suite of tools that takes data from raw sources to interactive reports and governed dashboards. Understanding where each tool fits prevents confusion and wasted effort.</p>
+<h3>The Core Products</h3>
+<ul>
+  <li><strong>Power BI Desktop</strong> — the free Windows authoring tool. You connect, transform data in Power Query, model relationships, write DAX measures, and design report pages here. Think of it as your studio.</li>
+  <li><strong>Power BI Service</strong> (app.powerbi.com) — the cloud portal where you publish, share, schedule refreshes, and govern content. Think of it as the gallery where your audience views work.</li>
+  <li><strong>Power BI Mobile</strong> — iOS and Android apps for consuming reports on the go. Reports adapt to mobile layout if the author enables it.</li>
+  <li><strong>Power BI Report Server</strong> — the on-premises option for organisations that cannot use the cloud.</li>
+  <li><strong>Power BI Embedded</strong> — APIs for embedding Power BI visuals inside custom applications.</li>
+</ul>
+<h3>The Typical Authoring Workflow</h3>
+<p>Most SourceFuse projects follow: <strong>Desktop (Build) → Publish → Service (Share) → App (Distribute)</strong>. You build everything in Desktop — Power Query cleans the data, the Model view defines relationships, Report pages display visuals — then publish to the Service for scheduling and distribution.</p>
+<h3>Licensing at a Glance</h3>
+<ul>
+  <li><strong>Free</strong> — Desktop only; you cannot share content to others.</li>
+  <li><strong>Pro</strong> — publish to workspaces, share with other Pro users. This is the standard SourceFuse licence for report authors.</li>
+  <li><strong>Premium / PPU</strong> — share with free users, larger datasets, advanced AI features, paginated reports.</li>
+</ul>
+<div class="callout callout-info"><strong>SourceFuse context:</strong> Most internal BI work uses Power BI Pro licences. Content is shared to colleagues via shared workspaces or packaged Apps.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>Which Power BI component is used for authoring reports before publishing?</li><li>What is the key difference between Power BI Service and Power BI Desktop?</li><li>Which licence tier is required to share content with other Power BI Pro users?</li></ul></div>`
+  },
+  {
+    id: 2,
+    title: 'Power BI Desktop Interface & Canvas',
+    badge: '',
+    content: `
+<p>Power BI Desktop has three main views, each serving a distinct purpose. Knowing when to use each prevents authors from trying to do the wrong thing in the wrong place.</p>
+<h3>The Three Views</h3>
+<ul>
+  <li><strong>Report View</strong> — the visual canvas where you place and configure visualisations, slicers, text boxes, images, and shapes. This is what end users see when they open a published report.</li>
+  <li><strong>Data View</strong> — a spreadsheet-like grid showing each table's rows. Use it to browse data, inspect data types, and write calculated columns (the results appear as new columns in the grid immediately).</li>
+  <li><strong>Model View</strong> — a diagram showing all tables and their relationships. Create, edit, and audit your data model structure here.</li>
+</ul>
+<h3>The Key Panes</h3>
+<ul>
+  <li><strong>Fields Pane</strong> — lists all tables, columns, and measures. Drag fields from here into visual wells or onto the canvas.</li>
+  <li><strong>Visualisations Pane</strong> — choose a chart type (bar, line, map, etc.) and configure its field wells (Axis, Values, Legend) and format settings.</li>
+  <li><strong>Filters Pane</strong> — apply visual-level, page-level, or report-level filters without occupying canvas space.</li>
+  <li><strong>Format Pane</strong> (brush icon in the Visualisations pane) — controls all visual appearance: colours, fonts, axis labels, borders, and padding.</li>
+</ul>
+<div class="callout callout-tip"><strong>Tip:</strong> You can hide the Fields and Visualisations panes using the View ribbon to maximise canvas space during design. Use <span class="inline-code">View → Page View → Fit to Page</span> to see your full report at once.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In which Power BI Desktop view do you create and manage table relationships?</li><li>In which view can you write a calculated column and immediately see its values?</li><li>What is the purpose of the Filters Pane?</li></ul></div>`
+  },
+  {
+    id: 3,
+    title: 'Connecting to Data Sources',
+    badge: '',
+    content: `
+<p>Power BI's <strong>Get Data</strong> dialog (Home ribbon → Get Data) provides over 100 connectors. Choosing the right connector and connection mode profoundly affects performance and data freshness.</p>
+<h3>Common Connectors</h3>
+<ul>
+  <li><strong>Text/CSV</strong> — flat files. Simple, reliable, perfect for course labs using <span class="inline-code">sf-sales-orders.csv</span>.</li>
+  <li><strong>Excel Workbook</strong> — connects to named tables or sheets inside Excel files.</li>
+  <li><strong>SQL Server / Azure SQL</strong> — relational databases; supports query folding (Power Query pushes transformation logic to the database).</li>
+  <li><strong>SharePoint Online List</strong> — SharePoint lists, useful for reference data maintained by business users.</li>
+  <li><strong>Web</strong> — HTML tables from a URL; entry point for REST API data via M language.</li>
+</ul>
+<h3>Connection Modes</h3>
+<ul>
+  <li><strong>Import</strong> — data is copied into Power BI's Vertipaq in-memory engine. Fastest query performance. Requires scheduled refresh to stay current. Limited by model size (1 GB on Pro, higher on Premium).</li>
+  <li><strong>DirectQuery</strong> — every visual interaction sends a live query to the source database. Always current but performance depends entirely on the source. Limited DAX support.</li>
+  <li><strong>Live Connection</strong> — connects to a published Power BI dataset or Azure Analysis Services. The report has no local model; all calculations are delegated to the remote engine.</li>
+</ul>
+<div class="callout callout-warn"><strong>Decision rule:</strong> Default to <strong>Import</strong> for internal reporting. Use DirectQuery only when data must be real-time and the source can handle the query load.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In Import mode, when is the data in the model updated from the source?</li><li>What is the key advantage of DirectQuery over Import mode?</li><li>Which mode sends a query to the source on every visual interaction?</li></ul></div>`
+  },
+  {
+    id: 4,
+    title: 'Report View, Data View & Model View',
+    badge: '',
+    content: `
+<p>Each Power BI Desktop view exposes different capabilities. Understanding which tasks belong in which view is a foundational skill.</p>
+<h3>Report View — The Canvas</h3>
+<p>Report View is where you build the end-user experience. Each report can have multiple pages (tabs at the bottom). You insert visuals by selecting a chart type in the Visualisations pane, then dragging fields into the visual wells. The Format pane controls all appearance properties.</p>
+<p>Key Report View capabilities: add/resize/format visuals, configure cross-filter interactions between visuals, insert bookmarks, create drill-through pages, apply report themes, and preview mobile layout.</p>
+<h3>Data View — Browse and Calculate</h3>
+<p>Data View shows the raw rows of each table in a grid. Use it to verify data loaded correctly, inspect row counts and data types, and write <strong>calculated columns</strong> (DAX formulas that produce a new column stored in the model). The results appear immediately in the grid row by row.</p>
+<div class="callout callout-info"><strong>Important:</strong> You cannot add, edit, or delete rows of data in Data View. Power BI is read-only from a data perspective — all data changes happen in the source system or in Power Query.</div>
+<h3>Model View — Your Data Architecture</h3>
+<p>Model View displays all tables as boxes and all relationships as connector lines. Here you: create relationships by dragging a column onto another table's column, edit relationship cardinality and cross-filter direction, set a table as the Date Table, and hide columns from the report view to keep the Fields pane clean.</p>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>In which view would you create a relationship between two tables?</li><li>In which view can you see the result of a calculated column row by row?</li><li>Can you modify data rows in Power BI Desktop's Data View?</li></ul></div>`
+  },
+  {
+    id: 5,
+    title: 'Publishing to Power BI Service',
+    badge: '',
+    content: `
+<p>Publishing bridges Desktop (authoring) and Service (sharing). Understanding what gets published, where it goes, and how to update it are essential day-one operational skills.</p>
+<h3>The Publish Flow</h3>
+<ol>
+  <li>In Desktop, click <strong>Home → Publish</strong>.</li>
+  <li>Sign in with your Microsoft 365 account if prompted.</li>
+  <li>Select a <strong>destination workspace</strong> — My Workspace, or a shared workspace you have access to.</li>
+  <li>If a report with the same name already exists, Power BI asks to replace it. Confirm to overwrite.</li>
+  <li>A success notification appears with a link to open the report in the Service.</li>
+</ol>
+<h3>What Gets Published</h3>
+<p>Publishing always creates two artefacts in the Service: the <strong>dataset</strong> (the data model — all tables, relationships, DAX measures, and Import data) and the <strong>report</strong> (the page layouts and visual configurations). These are separate objects. You can build multiple reports on top of one published dataset without duplicating data.</p>
+<h3>Scheduled Refresh</h3>
+<p>Import datasets go stale after publishing. Configure scheduled refresh in the Service: open the dataset → Settings → Scheduled Refresh. Power BI connects to the source via an <strong>On-Premises Data Gateway</strong> if the source is local (CSV, SQL Server on-prem), or directly if the source is cloud-hosted (Azure SQL, SharePoint Online).</p>
+<div class="callout callout-warn"><strong>Local CSV caveat:</strong> Power BI cannot refresh local CSV files from the Service without a gateway. For production use, move files to SharePoint or OneDrive for gateway-free refresh.</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>What two artefacts are created in the Service when you publish from Desktop?</li><li>What is required to schedule a refresh of a dataset built on local SQL Server data?</li><li>Can multiple reports be built on top of one published dataset?</li></ul></div>`
+  },
+  {
+    id: 6,
+    title: 'Lab: First Report & Dashboard',
+    badge: 'lab',
+    content: `
+<div class="lab">
+  <h4>🧪 Lab 1 — Connect, Build, Publish</h4>
+  <p>Connect to the SourceFuse datasets, build a basic sales overview report, and publish it to Power BI Service.</p>
+  <a class="lab-download" href="../datasets/sf-sales-orders.csv" download>⬇ sf-sales-orders.csv</a>
+  <a class="lab-download" href="../datasets/sf-customers.csv" download>⬇ sf-customers.csv</a>
+  <ol>
+    <li>Open Power BI Desktop → <strong>Home → Get Data → Text/CSV</strong> → select <span class="inline-code">sf-sales-orders.csv</span> → click <strong>Load</strong> (no transformations yet).</li>
+    <li>Repeat for <span class="inline-code">sf-customers.csv</span>. You now have two tables.</li>
+    <li>Switch to <strong>Data View</strong> → click <span class="inline-code">sf_sales_orders</span> → verify columns: order_id, customer_id, order_date, category, region, revenue, profit, quantity.</li>
+    <li>Switch to <strong>Report View</strong>. Insert a <strong>Clustered Bar Chart</strong>: Y-Axis = <span class="inline-code">category</span>, X-Axis / Values = <span class="inline-code">revenue</span>.</li>
+    <li>Insert a <strong>Line Chart</strong>: X-Axis = <span class="inline-code">order_date</span>, Y-Axis = <span class="inline-code">revenue</span>. Use the drill-down arrows to view at Month level.</li>
+    <li>Insert a <strong>Card</strong> visual: Fields = <span class="inline-code">revenue</span>. In Format → General → Title, set the title to "Total Revenue".</li>
+    <li>Insert a <strong>Slicer</strong>: Field = <span class="inline-code">region</span>. Click a region and verify both charts filter.</li>
+    <li>Click <strong>Home → Publish</strong> → select <strong>My Workspace</strong> → click <strong>Select</strong>. Open the report in the Service via the success link.</li>
+    <li><em>Optional:</em> In the Service, pin the card visual to a new Dashboard named "SF Sales Overview".</li>
+  </ol>
+  <div class="lab-expected"><strong>Expected result:</strong> A 3-visual report with a cross-filtering region slicer, published to Power BI Service in My Workspace.</div>
+</div>
+<div class="test-questions"><h4>🎯 Likely Exam Questions</h4><ul><li>After loading CSV files, in which view do you verify column names and data types?</li><li>When you select a value in a slicer, what happens to other visuals on the page by default?</li><li>What menu option initiates publishing a report to Power BI Service?</li></ul></div>`
+  }
+];
+
+let _uid = null, _completed = [];
+
+document.getElementById('signin-btn').addEventListener('click', () => {
+  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+    document.getElementById('ep-error').textContent = e.message||'Sign-in failed.';
+    document.getElementById('ep-error').style.display='block';
+  });
+});
+document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    if (!user.email||!user.email.endsWith('@sourcefuse.com')) {
+      document.getElementById('ep-error').textContent='Only @sourcefuse.com accounts are allowed.';
+      document.getElementById('ep-error').style.display='block';
+      await signOut(auth); return;
+    }
+    _uid=user.uid;
+    document.getElementById('user-avatar').src=user.photoURL||'';
+    document.getElementById('user-name').textContent=user.displayName||user.email;
+    document.getElementById('auth-overlay').style.display='none';
+    document.getElementById('loading-overlay').style.display='flex';
+    await loadCompleted();
+    document.getElementById('loading-overlay').style.display='none';
+    document.getElementById('app').style.display='block';
+    renderAll();
+  } else {
+    _uid=null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-overlay').style.display='flex';
+  }
+});
+
+window.sfEmailSignIn = function() {
+  const email=(document.getElementById('ep-email').value||'').trim().toLowerCase();
+  const pwd=document.getElementById('ep-password').value||'';
+  const errEl=document.getElementById('ep-error');
+  errEl.style.display='none';
+  if(!email||!pwd){errEl.textContent='Please enter your email and password.';errEl.style.display='block';return;}
+  if(!email.endsWith('@sourcefuse.com')){errEl.textContent='Only @sourcefuse.com accounts are allowed.';errEl.style.display='block';return;}
+  signInWithEmailAndPassword(auth,email,pwd).catch(e=>{
+    errEl.textContent=(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')?'Incorrect password.'
+      :(e.code==='auth/user-not-found')?'No account found for this email.':e.message;
+    errEl.style.display='block';
+  });
+};
+
+async function loadCompleted(){const snap=await getDoc(doc(db,'progress',_uid));_completed=snap.exists()?(snap.data()[MODULE_KEY]||[]):[];}
+async function markComplete(id){
+  if(!_uid||_completed.includes(id))return;
+  _completed=[..._completed,id];
+  const ref=doc(db,'progress',_uid);const snap=await getDoc(ref);
+  if(!snap.exists()){await setDoc(ref,{[MODULE_KEY]:_completed,updatedAt:serverTimestamp()});}
+  else{await updateDoc(ref,{[MODULE_KEY]:arrayUnion(id),updatedAt:serverTimestamp()});}
+  updateSectionUI(id);updateSidebarProgress();
+}
+function renderAll(){renderSections();renderNavItems();updateSidebarProgress();}
+function renderSections(){
+  const c=document.getElementById('sections-container');
+  c.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const bh=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="section-block" id="block-${s.id}">
+      <div class="section-header" onclick="toggleSection(${s.id})">
+        <span class="section-num">${MODULE_NUM}.${s.id}</span>
+        <span class="section-title">${s.title}</span>
+        ${bh}${done?'<span style="color:#43A047;font-size:.85rem;">✓</span>':''}
+        <span class="section-toggle" id="toggle-${s.id}">▼</span>
+      </div>
+      <div class="section-body" id="body-${s.id}">
+        ${s.content}
+        <button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="handleMarkComplete(${s.id})" ${done?'disabled':''}>
+          ${done?'✅ Completed':'✔ Mark as Completed'}
+        </button>
+        <span class="save-indicator" id="indicator-${s.id}"></span>
+      </div>
+    </div>`;
+  }).join('');
+  const fi=SECTIONS.find(s=>!_completed.includes(s.id));
+  if(fi)toggleSection(fi.id);else if(SECTIONS.length>0)toggleSection(SECTIONS[0].id);
+}
+function renderNavItems(){
+  const nav=document.getElementById('nav-items');
+  nav.innerHTML=SECTIONS.map(s=>{
+    const done=_completed.includes(s.id);
+    const b=s.badge?`<span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>`:'';
+    return `<div class="nav-item ${done?'completed':''}" id="nav-${s.id}" onclick="scrollToSection(${s.id})"><span>${MODULE_NUM}.${s.id} ${s.title}</span>${b}</div>`;
+  }).join('');
+}
+function updateSidebarProgress(){const done=_completed.length;const pct=Math.round((done/SECTIONS.length)*100);document.getElementById('sidebar-bar').style.width=pct+'%';document.getElementById('sidebar-pct').textContent=pct+'%';}
+function updateSectionUI(id){
+  const btn=document.getElementById(`complete-btn-${id}`);const nav=document.getElementById(`nav-${id}`);const blk=document.getElementById(`block-${id}`);
+  if(btn){btn.classList.add('done');btn.disabled=true;btn.textContent='✅ Completed';}
+  if(nav)nav.classList.add('completed');
+  const hdr=blk?.querySelector('.section-header');
+  if(hdr&&!hdr.querySelector('.done-tick')){const tick=document.createElement('span');tick.className='done-tick';tick.style.cssText='color:#43A047;font-size:.85rem;';tick.textContent='✓';hdr.insertBefore(tick,hdr.querySelector('.section-toggle'));}
+}
+window.handleMarkComplete=async function(id){const btn=document.getElementById(`complete-btn-${id}`);if(!btn||btn.disabled)return;btn.disabled=true;btn.textContent='⏳ Saving…';const ind=document.getElementById(`indicator-${id}`);if(ind)ind.textContent='Saving…';await markComplete(id);if(ind){ind.textContent='Saved ✓';setTimeout(()=>ind.textContent='',2000);}};
+window.toggleSection=function(id){SECTIONS.forEach(s=>{const body=document.getElementById(`body-${s.id}`);const toggle=document.getElementById(`toggle-${s.id}`);const nav=document.getElementById(`nav-${s.id}`);if(s.id===id){const isOpen=body.classList.contains('open');body.classList.toggle('open',!isOpen);toggle?.classList.toggle('open',!isOpen);nav?.classList.toggle('active',!isOpen);}else{body.classList.remove('open');toggle?.classList.remove('open');nav?.classList.remove('active');}});};
+window.scrollToSection=function(id){toggleSection(id);document.getElementById(`block-${id}`)?.scrollIntoView({behavior:'smooth',block:'start'})};
+window.markComplete=markComplete;
+</script>
+</body>
+</html>
