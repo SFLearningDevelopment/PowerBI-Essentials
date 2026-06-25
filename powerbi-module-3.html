@@ -379,7 +379,7 @@ in  WithWkend</code></pre>
   }
 ];
 
-let _uid = null, _completed = [];
+let _uid = null, _email = null, _name = null, _completed = [];
 
 document.getElementById('signin-btn').addEventListener('click', () => {
   signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
@@ -397,6 +397,8 @@ onAuthStateChanged(auth, async user => {
       await signOut(auth); return;
     }
     _uid=user.uid;
+    _email=user.email;
+    _name=user.displayName||user.email;
     document.getElementById('user-avatar').src=user.photoURL||'';
     document.getElementById('user-name').textContent=user.displayName||user.email;
     document.getElementById('auth-overlay').style.display='none';
@@ -434,6 +436,7 @@ async function markComplete(id){
   if(!snap.exists()){await setDoc(ref,{[MODULE_KEY]:_completed,updatedAt:serverTimestamp()});}
   else{await updateDoc(ref,{[MODULE_KEY]:arrayUnion(id),updatedAt:serverTimestamp()});}
   updateSectionUI(id);updateSidebarProgress();
+  if(_completed.length>=SECTIONS.length) pbWriteModuleComplete();
 }
 function renderAll(){renderSections();renderNavItems();updateSidebarProgress();}
 function renderSections(){
@@ -480,6 +483,40 @@ window.handleMarkComplete=async function(id){const btn=document.getElementById(`
 window.toggleSection=function(id){SECTIONS.forEach(s=>{const body=document.getElementById(`body-${s.id}`);const toggle=document.getElementById(`toggle-${s.id}`);const nav=document.getElementById(`nav-${s.id}`);if(s.id===id){const isOpen=body.classList.contains('open');body.classList.toggle('open',!isOpen);toggle?.classList.toggle('open',!isOpen);nav?.classList.toggle('active',!isOpen);}else{body.classList.remove('open');toggle?.classList.remove('open');nav?.classList.remove('active');}});};
 window.scrollToSection=function(id){toggleSection(id);document.getElementById(`block-${id}`)?.scrollIntoView({behavior:'smooth',block:'start'})};
 window.markComplete=markComplete;
+
+/* ===== PowerBI courseProgress v2 (module-complete write) ===== */
+const PB_CP_COURSE_ID = 'MvS3hDfFbtKyCYVYWsQE';
+const PB_MODULE_KEY_CP = 'powerbi-module-3';
+const PB_MODULE_KEYS = ['powerbi-module-1','powerbi-module-2','powerbi-module-3','powerbi-module-4','powerbi-module-5','powerbi-module-6'];
+
+async function pbWriteModuleComplete(){
+  if(!_uid) return;
+  try{
+    const ref=doc(db,'courseProgress',_uid);
+    const snap=await getDoc(ref);
+    const data=snap.exists()?(snap.data()||{}):{};
+    const course=(data.courses&&data.courses[PB_CP_COURSE_ID])||{};
+    const mods=course.modules||{};
+    const nowIso=new Date().toISOString();
+    if(mods[PB_MODULE_KEY_CP]&&mods[PB_MODULE_KEY_CP].completedOn) return; // already recorded
+    const courseUpdate={ modules:{} };
+    courseUpdate.modules[PB_MODULE_KEY_CP]={ completedOn:nowIso, completedAt:serverTimestamp() };
+    if(course.moduleInProgress===PB_MODULE_KEY_CP) courseUpdate.moduleInProgress=null;
+    let doneCount=0;
+    PB_MODULE_KEYS.forEach(function(k){ if(k===PB_MODULE_KEY_CP){doneCount++;return;} if(mods[k]&&mods[k].completedOn) doneCount++; });
+    if(doneCount>=PB_MODULE_KEYS.length && !course.courseCompletedOn){ courseUpdate.courseCompletedOn=nowIso; courseUpdate.courseCompletedAt=serverTimestamp(); }
+    if(!snap.exists()){
+      await setDoc(ref,{ email:_email, name:_name, courseStartedOn:nowIso, courseStartedAt:serverTimestamp(),
+        courses:{ [PB_CP_COURSE_ID]: Object.assign({}, courseUpdate) } });
+    }else{
+      const upd={ email:_email, name:_name, courses:{} };
+      upd.courses[PB_CP_COURSE_ID]=courseUpdate;
+      if(!data.courseStartedOn && !course.courseStartedOn){ upd.courses[PB_CP_COURSE_ID].courseStartedOn=nowIso; upd.courses[PB_CP_COURSE_ID].courseStartedAt=serverTimestamp(); }
+      await setDoc(ref, upd, { merge:true });
+    }
+  }catch(e){ console.warn('[powerbi] courseProgress write failed:', e.message); }
+}
+
 </script>
 </body>
 </html>
